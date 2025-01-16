@@ -16,6 +16,7 @@ export default function SignUp() {
     district: "", //거주지 선택 정보
     agree: false, // 정보 제공 동의 여부
   });
+  
 
   const submitRequirements = // 아래 조건을 모두 충족할 시 제출 버튼 활성화.
     inputValue.userid && // 아이디가 입력되었는가?
