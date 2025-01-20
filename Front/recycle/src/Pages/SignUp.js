@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 
 import { useNavigate } from 'react-router-dom'
 
+
 export default function SignUp() {
 
   const [inputValue, setInputValue] = useState({
@@ -13,15 +14,14 @@ export default function SignUp() {
     pwCheck: "", // 입력된 패스워드 확인 데이터
     correctPwCheck: false, // 패드워드 데이터와 일치하는지 여부
     username: "", // 입력된 사용자 이름 데이터
-    district: "", //거주지 선택 정보
+    // district: "", //거주지 선택 정보
     agree: false, // 정보 제공 동의 여부
   });
-  
 
   const submitRequirements = // 아래 조건을 모두 충족할 시 제출 버튼 활성화.
     inputValue.userid && // 아이디가 입력되었는가?
     inputValue.validId && // 아이디가 정규식에 부합하는가? 6-20
-    inputValue.nonIdDuplication && // 아이디가 중복되지 않았는가?
+    // inputValue.nonIdDuplication && // 아이디가 중복되지 않았는가?
     inputValue.pw && // 비밀번호가 입력되었는가? 
     inputValue.validPw && // 비밀번호가 정규식에 부합하는가? 6자리 이상
     inputValue.pwCheck && // 비밀번호가 입력되었는가?
@@ -45,6 +45,7 @@ export default function SignUp() {
     pw: "비밀번호가 입력되지 않았습니다.",
     validPw: "사용할 수 없는 비밀번호입니다.",
     correctPwCheck: "비밀번호가 일치하지 않습니다.",
+    username: "이름이 입력되지 않았습니다",
     agree: "회원가입을 위해 정보 제공에 동의가 필요합니다. 동의하지 않을 경우 회원가입이 제한됩니다.",
   };
 
@@ -91,148 +92,147 @@ export default function SignUp() {
 
 
 
+
   const handleSubmit = () => {
     const isConfirmed = window.confirm("가입이 완료되었습니다.");
     if (!submitRequirements) {
       alert("모든 조건을 충족해야 회원가입이 가능합니다.");
-      return;
-    } else if(isConfirmed){
+
+    } else if (isConfirmed) {
       navigate("/login")
+      return;
     }
   }
 
-    // const SignUpOk = () => {
-    //   const isConfirmed = window.confirm("가입이 완료되었습니다.");
-    //   if (isConfirmed) {
+  // const SignUpOk = () => {
+  //   const isConfirmed = window.confirm("가입이 완료되었습니다.");
+  //   if (isConfirmed) {
 
-    //     navigate("/login");
-    //   }
-    // };
+  //     navigate("/login");
+  //   }
+  // };
 
 
 
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-[#a2b9a8]">
-        <div className="bg-white w-96 p-8 h-150 rounded-xl shadow-md relative">
-          {/* Login 텍스트 */}
-          <h1 className="text-6xl font-bold text-center text-[#4d634b] absolute -top-20 left-1/2 transform -translate-x-1/2 bg-[#a2b9a8] px-4">
-            SignUp
-          </h1>
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-[#a2b9a8]">
+      <div className="bg-white w-96 p-8 h-150 rounded-xl shadow-md relative">
+        {/* Login 텍스트 */}
+        <h1 className="text-6xl font-bold text-center text-[#4d634b] absolute -top-20 left-1/2 transform -translate-x-1/2 bg-[#a2b9a8] px-4">
+          SignUp
+        </h1>
 
-          {/* <form onSubmit={handleSignUp} className="space-y-4"> */}
-          <div>
-            <label htmlFor="userid" className="block text-sm font-medium text-[#4d634b] ">
-              아이디
-            </label>
-            <div className='flex'>
-              <input
-                type="text"
-                id="userid"
-                placeholder="아이디 입력(6~20자)"
-                value={inputValue.userid}
-                onChange={handleInputChange}
-                className="w-3/4 mt-1 my-4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
-              />
-              <button type="button" className="confirm-btn w-1/4 mt-1 my-4  ml-2  bg-[#4d634b]
-              text-white font-semibold rounded-md hover:bg-[#3f513d] transition" onClick={handleCheckUserId} >
-                
-                중복 확인
-              </button>
-            </div>
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-[#4d634b]">
-              비밀번호
-            </label>
-            <input
-              type="password"
-              id="password"
-              placeholder="비밀번호 입력(6자 이상)"
-              value={inputValue.pw}
-              onChange={handleInputChange}
-              className="w-full mt-1  my-4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
-            />
-          </div>
-          <div>
-            <label htmlFor="pwCheck" className="block text-sm font-medium text-[#4d634b]">
-              비밀번호 확인
-            </label>
-            <input
-              type="password"
-              id="pwCheck"
-              value={inputValue.pwCheck}
-              onChange={handleInputChange}
-              placeholder="비밀번호 재입력"
-              className="w-full mt-1 p-2 my-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
-            />
-          </div>
-          <div>
-            <label htmlFor="username" className="block text-sm font-medium text-[#4d634b]">
-              이름
-            </label>
+        {/* <form onSubmit={handleSignUp} className="space-y-4"> */}
+        <div>
+          <label htmlFor="userid" className="block text-sm font-bold text-[#4d634b] ">
+            아이디
+          </label>
+          <div className='flex'>
             <input
               type="text"
-              id="username"
-              value={inputValue.username}
+              id="userid"
+              placeholder="아이디 입력(6~20자)"
+              value={inputValue.userid}
               onChange={handleInputChange}
-              placeholder="이름을 입력해주세요"
-              className="w-full mt-1 p-2 border my-4 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
+              className="w-3/4 mt-1 my-4 p-2   border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
             />
-          </div>
-          <div>
-            <label for="district" className="block text-sm font-medium text-[#4d634b]">
-              거주지 선택
-            </label>
-            <div className='flex'>
-              <div>
-                <select
-                  id="district"
-                  placeholder="==시도=="
+            <button type="button" className="confirm-btn w-1/4 mt-1 my-4  ml-2  bg-[#4d634b]
+              text-white font-bold text-sm rounded-md hover:bg-[#3f513d] transition" onClick={handleCheckUserId} >
 
-                  className="w-full mt-1 p-2 mr-3 text-center border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
-                >
-                  <option value="">== 시도 ==</option>
-                </select>
-              </div>
-              <div>
-                <select
-                  id="district"
-                  placeholder="==시군구=="
-                  className="w-full mt-1 p-2 mx-3 text-center border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
-                >
-                  <option value="">== 시군구 ==</option>
-                </select>
-              </div>
-            </div>
+              중복 확인
+            </button>
           </div>
-          <div className="my-4">
-            <label className="inline-flex items-center">
-              <input
-                type="checkbox"
-                checked={inputValue.agree}
-                onChange={(e) =>
-                  setInputValue((prev) => ({ ...prev, agree: e.target.checked }))}
-                className="form-checkbox"
-              />
-              <span className="ml-2 text-sm text-[#4d634b]">
-                정보 제공에 동의합니다.
-              </span>
-            </label>
-          </div>
-          <button
-            type="submit"
-            className={`w-full py-2 my-6 text-white font-semibold rounded-md transition ${
-            submitRequirements ? "bg-[#4d634b] hover:bg-[#3f513d]" : "bg-gray-400"}`}
-            // className={`${submitRequirements ? styles.allFilled : styles.submitBtn} w-full py-2 my-6 text-white font-semibold rounded-md transition hover:bg-[#3f513d]`}
-            // onClick={SignUpOk}
-            onClick={handleSubmit}
-            disabled={!submitRequirements}
-          >
-            회원가입
-          </button>
-          {/* </form> */}
+          {inputValue.userid && !inputValue.validId ? (
+            <p className="text-red-500 text-sm ">{alertMessage.validId}</p>
+          ) : inputValue.userid && inputValue.validId ? (
+            <p className="text-green-500 text-sm">{passMessage.validid}</p>
+          ) : null}
         </div>
+
+        <div className='my-2'>
+          <label htmlFor="password" className="block text-sm font-bold text-[#4d634b]">
+            비밀번호
+          </label>
+          <input
+            type="password"
+            id="pw"
+            placeholder="비밀번호 입력(6자 이상)"
+            value={inputValue.pw}
+            onChange={handleInputChange}
+            className="w-full mt-1  my-4 p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
+          />
+          {inputValue.pw && !inputValue.validPw ? (
+            <p className="text-red-500 text-sm">{alertMessage.validPw}</p>
+          ) : inputValue.pw && inputValue.validPw ? (
+            <p className="text-green-500 text-sm">{passMessage.validpw}</p>
+          ) : null}
+        </div>
+        <div>
+          <label htmlFor="pwCheck" className="block text-sm font-bold text-[#4d634b]">
+            비밀번호 확인
+          </label>
+          <input
+            type="password"
+            id="pwCheck"
+            value={inputValue.pwCheck}
+            onChange={handleInputChange}
+            placeholder="비밀번호 재입력"
+            className="w-full mt-1 p-2 my-4 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
+          />
+          {inputValue.pwCheck && !inputValue.correctPwCheck ? (
+            <p className="text-red-500 text-sm">{alertMessage.correctPwCheck}</p>
+          ) : inputValue.pwCheck && inputValue.correctPwCheck ? (
+            <p className="text-green-500 text-sm">{passMessage.correctPwCheck}</p>
+          ) : null}
+        </div>
+        <div className='my-2'>
+          <label htmlFor="username" className="block text-sm font-bold text-[#4d634b]">
+            이름
+          </label>
+          <input
+            type="text"
+            id="username"
+            value={inputValue.username}
+            onChange={handleInputChange}
+            placeholder="이름을 입력해주세요"
+            className="w-full mt-1 p-2 border my-4 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
+          />
+          {!inputValue.username && (
+            <p className="text-red-500 text-sm">{alertMessage.username}</p>
+          )}
+        </div>
+
+
+
+
+        <div className="my-4">
+          <label className="inline-flex items-center">
+            <input
+              type="checkbox"
+              checked={inputValue.agree}
+              onChange={(e) =>
+                setInputValue((prev) => ({ ...prev, agree: e.target.checked }))}
+              className="form-checkbox"
+            />
+            <span className="ml-2 text-sm font-bold text-[#4d634b]">
+              정보 제공에 동의합니다.
+            </span>
+          </label>
+        </div>
+        <button
+          type="submit"
+          className={`w-full py-2  text-white font-semibold rounded-md transition ${submitRequirements ? "bg-[#4d634b] hover:bg-[#3f513d]" : "bg-gray-400"}`}
+          // className={`${submitRequirements ? styles.allFilled : styles.submitBtn} w-full py-2 my-6 text-white font-semibold rounded-md transition hover:bg-[#3f513d]`}
+          // onClick={SignUpOk}
+          onClick={handleSubmit}
+          disabled={!submitRequirements}
+        >
+          회원가입
+        </button>
+        {/* </form> */}
       </div>
-    )
-  }
+    </div>
+  )
+}
+
+
