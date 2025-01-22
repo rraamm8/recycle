@@ -3,6 +3,8 @@ import 'charts.css';
 export default function DashBoard() {
   return (
     <div className="flex flex-col h-screen bg-gray-100">
+      {/* git test */}
+      
     {/* Header */}
     <header className="w-full  h-10 bg-[#1c4227] ">헤더</header>
 
