@@ -1,0 +1,47 @@
+/* 캘린더 컨테이너 */
+.calendar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #a2b9a8;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.calendar-title {
+  font-size: 1.5rem;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* 원 안에 날짜 스타일 */
+.circle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background-color: #d9d9d9;
+  font-weight: bold;
+  color: #000;
+}
+
+/* 선택된 날짜 강조 */
+.react-calendar__tile--active {
+  background: #007bff !important;
+  color: white !important;
+  border-radius: 50%;
+}
+
+/* 이전/다음 월 날짜 숨기기 */
+.react-calendar__tile--now {
+  background: transparent !important;
+  color: black !important;
+}
+
+.react-calendar__tile--disabled {
+  visibility: hidden; /* 현재 월 외 날짜 숨김 */
+}
