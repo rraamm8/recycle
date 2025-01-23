@@ -26,6 +26,6 @@ public class ClassesEntity {
     private int isRecyclable; // 재활용 가능 여부(1: 가능, 0: 불가능)
 
     @Column(name = "carbon_reduction")
-    private Float carbonReduction; // 탄소 절감량
+    private Double carbonReduction; // 탄소 절감량
     
 }
