@@ -7,8 +7,10 @@ const Loading = <div>Loading....</div>
 const Home = lazy(() => import("../Pages/home"))
 const Login = lazy(() => import("../Pages/Login"))
 const SignUp = lazy(() => import("../Pages/SignUp"))
-const DashBoard = lazy(()=> import("../User/DashBoard"))
-const FileUpload = lazy(()=> import("../User/FileUpload"))
+const DashBoard = lazy(()=> import("../Dashboard/DashBoardMain"))
+const FileUpload = lazy(()=> import("../Dashboard/FileUpload"))
+const CRCDetailPage = lazy(()=>import("../Dashboard/CRCDetailPage"))
+const VideoUploader = lazy(()=>import("../Dashboard/VideoUploader"))
 
 // // 로그아웃 시 상태 변경
 // const handleLogout = () => {
@@ -62,6 +64,20 @@ const root = createBrowserRouter([
       element:
         <Suspense fallback={Loading}>
           <FileUpload/>
+        </Suspense>
+    },
+    {
+      path: "/CRCDetailPage",
+      element:
+        <Suspense fallback={Loading}>
+          <CRCDetailPage/>
+        </Suspense>
+    },
+    {
+      path: "/videouploader",
+      element:
+        <Suspense fallback={Loading}>
+          <VideoUploader/>
         </Suspense>
     }
   ])
