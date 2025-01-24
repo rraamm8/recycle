@@ -7,6 +7,10 @@ import SuccessRateChart from './SuccessRateChart';
 import DeviceRecyclingChart from './DeviceRecyclingChart';
 import { useState } from 'react';
 import Calendar from 'moedim';
+import RecentWeekBarChart from './RecentWeekBarChart';
+import TodayBottleCount from './TodayBottleCount';
+import RecyclePieChart from './RecyclePieChart';
+import RecyclablePieChart from './RecyclablePieChart'
 
 const Dashboard = () => {
   const [value, setValue] = useState(new Date());
@@ -35,16 +39,22 @@ const Dashboard = () => {
           <div className="lg:col-span-4">
             <MostUsedChart />
           </div>
-          <div className="lg:col-span-4">
+          <div className="lg:col-span-2">
             <Calendar value={value} onChange={(d) => setValue(d)} />
           </div>
 
-          {/* 하단 차트 (기기 적재량, 수거 성공률) */}
-          <div className="lg:col-span-2">
-            <DeviceRecyclingChart />
+          {/* 하단 차트 (탄소배출 감소량 막대그래프) */}
+          <div className="lg:col-span-4">
+            <RecentWeekBarChart/>
           </div>
           <div className="lg:col-span-2">
-            <SuccessRateChart />
+            <TodayBottleCount/>
+          </div>
+          <div className="lg:col-span-4">
+            <RecyclePieChart/>
+          </div>
+          <div className="lg:col-span-4">
+            <RecyclablePieChart/>
           </div>
         </div>
       </div>

@@ -5,7 +5,7 @@ import green from '../Icons/green.svg';
 import white from '../Icons/white.svg';
 
 
-const RecentMonthBarChart = () => {
+const MostUsedChart = () => {
   const [reports, setReports] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -139,4 +139,4 @@ const RecentMonthBarChart = () => {
   );
 };
 
-export default RecentMonthBarChart;
+export default MostUsedChart;

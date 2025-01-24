@@ -20,24 +20,24 @@ const DAY_MAPPING = {
   Sunday: "일요일",
 };
 
-const BOTTLE_TYPE_ORDER = [
-  "갈색병",
-  "갈색병(오염)",
-  "갈색병(오염+복합)",
-  "갈색병(복합)",
-  "초록병",
-  "초록병(오염)",
-  "초록병(오염+복합)",
-  "초록병(복합)",
-  "흰색병",
-  "흰색병(오염)",
-  "흰색병(오염+복합)",
-  "흰색병(복합)",
-  "유리병",
-  "유리병(오염)",
-  "유리병(오염+복합)",
-  "유리병(복합)",
-];
+const BOTTLE_TYPE_MAPPING = {
+  "06_brown_bottle": "갈색병",
+  "06_brown_bottle+dirty": "갈색병(오염)",
+  "06_brown_bottle+dirty+multi": "갈색병(오염+복합)",
+  "06_brown_bottle+multi": "갈색병(복합)",
+  "07_green_bottle": "초록병",
+  "07_green_bottle+dirty": "초록병(오염)",
+  "07_green_bottle+dirty+multi": "초록병(오염+복합)",
+  "07_green_bottle+multi": "초록병(복합)",
+  "08_white_bottle": "흰색병",
+  "08_white_bottle+dirty": "흰색병(오염)",
+  "08_white_bottle+dirty+multi": "흰색병(오염+복합)",
+  "08_white_bottle+multi": "흰색병(복합)",
+  "09_glass": "유리병",
+  "09_glass+dirty": "유리병(오염)",
+  "09_glass+dirty+multi": "유리병(오염+복합)",
+  "09_glass+multi": "유리병(복합)",
+};
 
 const transformData = (data) => {
   return data
@@ -46,9 +46,7 @@ const transformData = (data) => {
       return {
         ...row,
         dayOfWeek: DAY_MAPPING[row.dayOfWeek] || row.dayOfWeek, // 요일 매핑
-        bottleType: row.bottleType && BOTTLE_TYPE_ORDER.find((type) =>
-          type.includes(row.bottleType.replace("_", "").split("+")[0])
-        ), // 병 종류 매핑
+        bottleType: BOTTLE_TYPE_MAPPING[row.bottleType] || row.bottleType, // 병 종류 매핑
         recyclable: row.recyclable === 1 || row.recyclable === true ? "가능" : "불가능", // 재활용 여부
         date: date.toISOString().split("T")[0], // 날짜만 추출
         time: date.toTimeString().slice(0, 5), // 시간만 HH:MM 형식
@@ -63,8 +61,6 @@ const TableWithFiltersAndChart = () => {
   const [filteredData, setFilteredData] = useState([]);
   const [filters, setFilters] = useState({});
   const [chartMode, setChartMode] = useState("yearly"); // "yearly" or "monthly"
-  const [availableYears, setAvailableYears] = useState([]);
-  const [availableMonths, setAvailableMonths] = useState([]);
   const [selectedYear, setSelectedYear] = useState(null);
   const [selectedMonth, setSelectedMonth] = useState(null);
 
@@ -80,15 +76,6 @@ const TableWithFiltersAndChart = () => {
         const transformed = transformData(rawData);
         setData(transformed);
         setFilteredData(transformed);
-
-         // 연도 및 월 옵션 생성
-         const years = Array.from(
-          new Set(transformed.map((row) => new Date(row.date).getFullYear()))
-        ).sort((a, b) => b - a);
-        setAvailableYears(years);
-
-        const months = Array.from({ length: 12 }, (_, i) => i + 1);
-        setAvailableMonths(months);
       })
       .catch((error) => {
         console.error("Error fetching data:", error.message);
@@ -110,11 +97,12 @@ const TableWithFiltersAndChart = () => {
       if (chartMode === "yearly" && selectedYear) {
         return new Date(row.date).getFullYear() === parseInt(selectedYear);
       }
-      if (chartMode === "monthly" && selectedMonth && selectedYear) {
+      if (chartMode === "monthly" && selectedMonth) {
+        const [year, month] = selectedMonth.split("-");
         const rowDate = new Date(row.date);
         return (
-          rowDate.getFullYear() === parseInt(selectedYear) &&
-          rowDate.getMonth() + 1 === parseInt(selectedMonth)
+          rowDate.getFullYear() === parseInt(year) &&
+          rowDate.getMonth() + 1 === parseInt(month)
         );
       }
       return true;
@@ -159,50 +147,20 @@ const TableWithFiltersAndChart = () => {
           {/* 차트 모드 선택 */}
           <div className="mb-4 flex justify-center gap-4">
             <button
-              className={`px-4 py-2 rounded ${
-                chartMode === "yearly" ? "bg-blue-500 text-white" : "bg-gray-300"
-              }`}
+              className={`px-4 py-2 rounded ${chartMode === "yearly" ? "bg-gray-600 text-white" : "bg-gray-300"
+                }`}
               onClick={() => setChartMode("yearly")}
             >
               연도별
             </button>
             <button
-              className={`px-4 py-2 rounded ${
-                chartMode === "monthly" ? "bg-blue-500 text-white" : "bg-gray-300"
-              }`}
+              className={`px-4 py-2 rounded ${chartMode === "monthly" ? "bg-gray-600 text-white" : "bg-gray-300"
+                }`}
               onClick={() => setChartMode("monthly")}
             >
               월별
             </button>
           </div>
-          {chartMode === "yearly" && (
-            <select
-              className="mb-4 border p-2 rounded"
-              value={selectedYear || ""}
-              onChange={(e) => setSelectedYear(e.target.value)}
-            >
-              <option value="">연도 선택</option>
-              {availableYears.map((year) => (
-                <option key={year} value={year}>
-                  {year}
-                </option>
-              ))}
-            </select>
-          )}
-           {chartMode === "monthly" && selectedYear && (
-            <select
-              className="mb-4 border p-2 rounded"
-              value={selectedMonth || ""}
-              onChange={(e) => setSelectedMonth(e.target.value)}
-            >
-              <option value="">월 선택</option>
-              {availableMonths.map((month) => (
-                <option key={month} value={month}>
-                  {month}월
-                </option>
-              ))}
-            </select>
-          )}
           <div className="mb-6">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>

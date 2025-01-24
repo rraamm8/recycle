@@ -27,24 +27,7 @@ const DeviceRecyclingChart = () => {
           <Legend />
         </RadialBarChart>
       </div>
-      <div>
-        <h2 className="text-center text-xl font-bold mb-4">수거 성공율</h2>
-        <RadialBarChart
-          width={200}
-          height={200}
-          cx="50%"
-          cy="50%"
-          innerRadius="10%"
-          outerRadius="80%"
-          data={data}
-          startAngle={180}
-          endAngle={0}
-        >
-          <RadialBar minAngle={15} label background clockWise dataKey="uv" />
-          <Tooltip />
-          <Legend />
-        </RadialBarChart>
-      </div>
+   
     </div>
   );
 };
