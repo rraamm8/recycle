@@ -48,10 +48,7 @@ const RecentWeekBarChart = () => {
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
       return (
-        <div
-          className="p-2 bg-white rounded-lg shadow"
-          style={{ border: "1px solid #ccc" }}
-        >
+        <div className="p-2 bg-white rounded-lg shadow" style={{ border: "1px solid #ccc" }}>
           <p className="font-bold" style={{ color: "#000" }}>{label}</p>
           <p style={{ color: "#000" }}>
             <span className="font-semibold">total:</span> {payload[0].value}
@@ -63,33 +60,21 @@ const RecentWeekBarChart = () => {
   };
 
   return (
-    // <div className="p-6 max-w-full mx-auto ">
-    //   <h2 className="text-xl font-bold text-start mb-2">
-    //     최근 일주일간 총 탄소배출 감소량
-    //   </h2>
-    //   <div className="bg-slate-800 p-4 rounded-lg">
-    <div className="ml-6 mr-6 p-6 max-w-auto mx-auto bg-slate-800 rounded-lg">
-      <h2 className="text-lg font-bold text-white mb-3 ml-8">최근 일주일간 총 탄소배출 감소량</h2>
-        <ResponsiveContainer width="100%" height={242}>
-          <BarChart data={weeklyData}>
-            <Tooltip content={<CustomTooltip />} />
-            <XAxis
-              dataKey="day"
-              tick={{ fill: "#fff", fontSize: 16 }}
-              axisLine={false}
-              tickLine={false}
-            />
-            <Bar
-              dataKey="total"
-              fill="#8ef5f5"
-              // #adf58e
-              radius={[20, 20, 0, 0]}
-              barSize={40}
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      </div>
-    
+    <div className="p-4 max-w-full mx-auto bg-slate-800 rounded-lg">
+      <h2 className="text-lg font-bold text-white mb-3">최근 일주일간 총 탄소배출 감소량</h2>
+      <ResponsiveContainer width="100%" height={250}>
+        <BarChart data={weeklyData}>
+          <Tooltip content={<CustomTooltip />} />
+          <XAxis
+            dataKey="day"
+            tick={{ fill: "#fff", fontSize: 14 }}
+            axisLine={false}
+            tickLine={false}
+          />
+          <Bar dataKey="total" fill="#8ef5f5" radius={[20, 20, 0, 0]} barSize={40} />
+        </BarChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 

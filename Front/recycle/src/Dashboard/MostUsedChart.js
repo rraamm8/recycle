@@ -116,14 +116,14 @@ const MostUsedChart = () => {
         {groupedData.map((item, index) => (
           <div key={index} className="flex flex-col items-center">
             <div
-              className={`relative w-10 bg-gray-200 rounded-lg overflow-hidden flex justify-end`}
+              className={`relative w-10 bg-white rounded-lg overflow-hidden flex justify-end`}
               style={{ height: "160px" }}
             >
               <div
                 className={`absolute bottom-0 w-full ${item.color} transition-all duration-500 ease-in-out`}
                 style={{ height: `${item.percentage}%` }}
               >
-                <span className="absolute top-2 left-1/2 -translate-x-1/2 text-xs font-semibold text-white">
+                <span className="absolute top-1 left-1/2 -translate-x-1/2 text-xs font-semibold text-white">
                   {Math.round(item.percentage)}%
                 </span>
               </div>

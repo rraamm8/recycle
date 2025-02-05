@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -227,14 +226,6 @@ function LearningTimeChart() {
             </option>
           ))}
         </select>
-        <Link to={'/CRCDetailPage'}>
-        <button
-        className="p-2 border border-gray-300 bg-white mr-1 rounded text-sm w-full sm:w-auto"
-        
-        >
-          상세
-        </button>
-        </Link>
       </div>
 
       {/* 차트 */}

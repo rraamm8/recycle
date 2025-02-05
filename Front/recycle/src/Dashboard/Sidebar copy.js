@@ -14,12 +14,12 @@ const Sidebar = () => {
   const [active, setActive] = useState("홈");
 
   const menuItems = [
-    { name: "Home", icon: <FaHome />, path: "/dashboard" },
-    { name: "Chart", icon: <FaChartLine />, path: "/CRCDetailPage" },
+    { name: "Home", icon: <FaHome /> , path:"/dashboard"},
+    { name: "Chart", icon: <FaChartLine /> ,path: "/CRCDetailPage"},
     { name: "프로필", icon: <FaUser /> },
     { name: "메시지", icon: <FaEnvelope /> },
     { name: "설정", icon: <FaCog /> },
-    { name: "Sign Out", icon: <FaSignOutAlt />, path: "/" },
+    { name: "Sign Out", icon: <FaSignOutAlt /> ,path:"/"},
   ];
 
   return (
@@ -30,19 +30,19 @@ const Sidebar = () => {
       {/* Nav Items */}
       <div className="space-y-6">
         {menuItems.map((item) => (
-          <Link
-            to={item.path}
+          
+          <div
             key={item.name}
-            className={`flex flex-col items-center cursor-pointer ${active === item.name
+            className={`flex flex-col items-center cursor-pointer ${
+              active === item.name
                 ? "text-blue-500"
                 : "hover:text-gray-400 transition-colors"
-              }`}
+            }`}
             onClick={() => setActive(item.name)}
           >
             <div className="text-2xl">{item.icon}</div>
             <span className="text-xs mt-2">{item.name}</span>
-          </Link>
-
+          </div>
         ))}
       </div>
     </div>

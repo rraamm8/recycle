@@ -2,7 +2,8 @@ import React, { useState, useEffect, PureComponent } from "react";
 import { PieChart, Pie, Sector, ResponsiveContainer , Cell} from "recharts";
 import axios from "axios";
 //brown green white glass
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"]; // 병 종류별 색상
+// const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"]; // 병 종류별 색상
+const COLORS = ["#edc453", "#6aa86e", "#95c4cf", "#3d93b8"]; // 병 종류별 색상
 //brown  "#b5592b", "#77b52b", "#c8e0e0" ,"#2baeb5"
 // 병 종류 매핑
 const BOTTLE_MAPPING = {
@@ -162,20 +163,13 @@ const PieChartComponent = () => {
   };
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      {/* <h2 className="text-xl font-bold text-center mb-4">병 종류별 재활용 데이터</h2> */}
+    <div className="p-5 max-w-4xl mx-auto">
+      <h2 className="text-xl font-bold text-center ">병 종류별 재활용 데이터</h2>
       <div className="text-center ">
-        <select
-          className="border border-gray-300 rounded px-3 py-2"
-          value={filter}
-          onChange={handleFilterChange}
-        >
-          <option value="recyclable">재활용 가능</option>
-          <option value="nonRecyclable">재활용 불가능</option>
-        </select>
+        
       </div>
       
-        <ResponsiveContainer width="100%" height={300}>
+        <ResponsiveContainer width="150%" height={250}>
           <PieChart>
             <Pie
               activeIndex={activeIndex}
@@ -183,10 +177,10 @@ const PieChartComponent = () => {
               data={chartData}
               dataKey="value"
               nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={60}
-              outerRadius={80}
+              cx="33%"
+              cy="57%"
+              innerRadius={50}
+              outerRadius={70}
               fill="#8884d8"
               onMouseEnter={onPieEnter}
             >
@@ -196,7 +190,14 @@ const PieChartComponent = () => {
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-      
+        <select
+          className="border border-gray-300 rounded px-3 py-2 mt-7"
+          value={filter}
+          onChange={handleFilterChange}
+        >
+          <option value="recyclable">재활용 가능</option>
+          <option value="nonRecyclable">재활용 불가능</option>
+        </select>
     </div>
   );
 };

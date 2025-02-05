@@ -28,10 +28,16 @@ const TodayBottleCount = () => {
   }, []);
 
   return (
-    <div className="flex items-center justify-center h-20 bg-white rounded-lg shadow-md">
+    <div className="flex items-center justify-center h-15 bg-white rounded-lg shadow-md my-1">
       <div className="text-center">
-        <p className="text-5xl font-bold text-black">{todayCount}</p>
-        <p className="text-lg text-gray-600">Today's Bottle Collection</p>
+        {/* <p className="text-5xl font-bold text-black">{todayCount}</p> */}
+        {/* <p className="text-lg text-gray-600">Today's Bottle Collection</p> */}
+        <p className="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-bold text-black">
+          {todayCount}
+        </p>
+        <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600">
+          Today's Bottle Collection
+        </p>
       </div>
     </div>
   );
