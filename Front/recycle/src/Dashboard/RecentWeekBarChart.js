@@ -64,7 +64,7 @@ const RecentWeekBarChart = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold text-center mb-6">
+      <h2 className="text-xl font-bold text-start mb-2">
         최근 일주일간 총 탄소배출 감소량
       </h2>
       <div className="bg-black p-4 rounded-lg">

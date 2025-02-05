@@ -1,16 +1,15 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Sidebar from './Sidebar';
-import CarbonReductionChart from './CarbonReductionChart';
-import LearningTimeChart from './LearningTimeChart';
-import MostUsedChart from './MostUsedChart';
-import SuccessRateChart from './SuccessRateChart';
-import DeviceRecyclingChart from './DeviceRecyclingChart';
-import { useState } from 'react';
-import Calendar from 'moedim';
+// import Calendar from 'moedim';
 import RecentWeekBarChart from './RecentWeekBarChart';
 import TodayBottleCount from './TodayBottleCount';
+import LearningTimeChart from './LearningTimeChart';
+import MostUsedChart from './MostUsedChart';
 import RecyclePieChart from './RecyclePieChart';
-import RecyclablePieChart from './RecyclablePieChart'
+import RecyclablePieChart from './RecyclablePieChart';
+import TodayRecyclableCount from './TodayRecyclableCount';
+import CalendarComponent from './CalendarComponent';
+
 
 const Dashboard = () => {
   const [value, setValue] = useState(new Date());
@@ -21,40 +20,39 @@ const Dashboard = () => {
       <Sidebar />
 
       {/* Main Content */}
-      <div className="flex-1 h-screen overflow-y-auto p-6 bg-gray-100">
+      <div className="flex-1 h-screen overflow-y-auto p-4 bg-gray-100">
         {/* Dashboard Title */}
-        <h1 className="text-2xl font-bold mb-6">관리자 대시보드</h1>
+        {/* <h1 className="text-xl font-bold mb-4">관리자 대시보드</h1> */}
 
         {/* Grid Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-          {/* 상단 차트 (탄소 배출 감소량 & 기간별 병 수거량) */}
-          <div className="lg:col-span-6">
-            <CarbonReductionChart />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          {/* Top Row */}
+          <div className="lg:col-span-5  rounded-md p-3 ">
+            <div className="grid grid-cols-2 gap-3 mr-6 ml-6">
+              <TodayBottleCount />
+              <TodayRecyclableCount />
+            </div>
+            <RecentWeekBarChart />
           </div>
-          <div className="lg:col-span-6">
+          <div className="lg:col-span-7  rounded-md p-3">
             <LearningTimeChart />
           </div>
 
-          {/* 중간 차트 (Most Used, Calendar) */}
-          <div className="lg:col-span-4">
-            <MostUsedChart />
-          </div>
-          <div className="lg:col-span-2">
-            <Calendar value={value} onChange={(d) => setValue(d)} />
-          </div>
-
-          {/* 하단 차트 (탄소배출 감소량 막대그래프) */}
-          <div className="lg:col-span-4">
-            <RecentWeekBarChart/>
-          </div>
-          <div className="lg:col-span-2">
-            <TodayBottleCount/>
-          </div>
-          <div className="lg:col-span-4">
-            <RecyclePieChart/>
-          </div>
-          <div className="lg:col-span-4">
-            <RecyclablePieChart/>
+          {/* Bottom Section */}
+          <div className="lg:col-span-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            <div className=" rounded-md p-3 flex items-center justify-center">
+              <MostUsedChart />
+            </div>
+            <div className=" rounded-md p-3 flex items-center justify-center">
+              {/* <Calendar value={value} onChange={(d) => setValue(d)} /> */}
+              <CalendarComponent/>
+            </div>
+            <div className=" rounded-md p-3">
+              <RecyclePieChart />
+            </div>
+            <div className=" rounded-md p-3">
+              <RecyclablePieChart />
+            </div>
           </div>
         </div>
       </div>

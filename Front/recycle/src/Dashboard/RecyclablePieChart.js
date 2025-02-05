@@ -1,6 +1,8 @@
 import React, { PureComponent } from "react";
-import { PieChart, Pie, Sector, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Sector, ResponsiveContainer, Cell } from "recharts";
 import axios from "axios";
+
+const COLORS = ["#8884d8", "#ffc658"];
 
 const renderActiveShape = (props) => {
   const RADIAN = Math.PI / 180;
@@ -119,25 +121,30 @@ export default class DynamicPieChart extends PureComponent {
 
     return (
       <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold text-center mb-4">총 병 재활용 데이터</h2>
-      <div className="bg-gray-100 p-4 rounded-lg shadow">
-      <ResponsiveContainer width="100%" height={400}>
-        <PieChart>
-          <Pie
-            activeIndex={activeIndex}
-            activeShape={renderActiveShape}
-            data={data}
-            cx="50%"
-            cy="50%"
-            innerRadius={60}
-            outerRadius={80}
-            fill="#8884d8"
-            dataKey="value"
-            onMouseEnter={this.onPieEnter}
-          />
-        </PieChart>
-      </ResponsiveContainer>
-      </div>
+        {/* <h2 className="text-xl font-bold text-center mb-4">총 병 재활용 데이터</h2> */}
+        
+
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie
+                activeIndex={activeIndex}
+                activeShape={renderActiveShape}
+                data={data}
+                cx="50%"
+                cy="65%"
+                innerRadius={60}
+                outerRadius={80}
+                fill="#8884d8"
+                dataKey="value"
+                onMouseEnter={this.onPieEnter}
+              >
+                {data.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                ))}
+              </Pie>
+            </PieChart>
+          </ResponsiveContainer>
+        
       </div>
     );
   }

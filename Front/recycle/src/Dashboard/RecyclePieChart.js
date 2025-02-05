@@ -1,9 +1,9 @@
 import React, { useState, useEffect, PureComponent } from "react";
 import { PieChart, Pie, Sector, ResponsiveContainer , Cell} from "recharts";
 import axios from "axios";
-
+//brown green white glass
 const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"]; // 병 종류별 색상
-
+//brown  "#b5592b", "#77b52b", "#c8e0e0" ,"#2baeb5"
 // 병 종류 매핑
 const BOTTLE_MAPPING = {
   brown: [
@@ -163,8 +163,8 @@ const PieChartComponent = () => {
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-xl font-bold text-center mb-4">병 종류별 재활용 데이터</h2>
-      <div className="text-center mb-4">
+      {/* <h2 className="text-xl font-bold text-center mb-4">병 종류별 재활용 데이터</h2> */}
+      <div className="text-center ">
         <select
           className="border border-gray-300 rounded px-3 py-2"
           value={filter}
@@ -174,7 +174,7 @@ const PieChartComponent = () => {
           <option value="nonRecyclable">재활용 불가능</option>
         </select>
       </div>
-      <div className="bg-gray-100 p-4 rounded-lg shadow">
+      
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
@@ -196,7 +196,7 @@ const PieChartComponent = () => {
             </Pie>
           </PieChart>
         </ResponsiveContainer>
-      </div>
+      
     </div>
   );
 };

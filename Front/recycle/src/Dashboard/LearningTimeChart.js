@@ -193,11 +193,11 @@ function LearningTimeChart() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div style={{ maxWidth: 600, margin: "0 auto" }}>
-      <h2 style={{ marginBottom: "1rem", fontWeight: "bold" }}>기간별 병 수거량</h2>
+    <div style={{ maxWidth: 800, margin: "0 auto" }}>
+      <h2 style={{ textAlign: "center",marginBottom: "1rem", fontWeight: "bold", fontSize: "26px" }}>기간별 병 수거량</h2>
 
       {/* 드롭다운 2개 */}
-      <div style={{ display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+      <div style={{ justifyContent: "flex-end", display: "flex", gap: "1rem", marginBottom: "1rem" }}>
         {/* 병 종류 */}
         <select
           value={selectedBottleType}
@@ -224,15 +224,15 @@ function LearningTimeChart() {
       </div>
 
       {/* 차트 */}
-      <ResponsiveContainer width="100%" height={300}>
+      <ResponsiveContainer width="100%" height={400}>
         <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis
             dataKey="label"
-            label={{ value: "기간별", position: "insideBottom", offset: -5 }}
+            // label={{ value: "기간별", position: "insideBottom", offset: -4 }}
           />
           <YAxis
-            label={{ value: "개수", angle: -90, position: "insideLeft" }}
+            // label={{ value: "개수", angle: -90, position: "insideLeft" }}
           />
           <Tooltip />
           <Line
