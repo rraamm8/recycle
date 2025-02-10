@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { format } from "date-fns"; // 날짜 포맷 변환 라이브러리
 
 const Calendar = () => {
+  const navigate = useNavigate();
+
   const [currentMonth, setCurrentMonth] = useState(new Date()); // 현재 월 상태
   const [dataDates, setDataDates] = useState([]); // API에서 가져온 날짜와 totalCount 데이터 저장
-  const [selectedDate, setSelectedDate] = useState(null); // 클릭된 날짜 상태
 
   // 요일과 월 이름 배열
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
@@ -26,38 +28,12 @@ const Calendar = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 1));
   };
 
-  // 이전 연도로 이동
-  const handlePrevYear = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear() - 1, currentMonth.getMonth(), 1));
-  };
-
-  // 다음 연도로 이동
-  const handleNextYear = () => {
-    setCurrentMonth(new Date(currentMonth.getFullYear() + 1, currentMonth.getMonth(), 1));
-  };
-
   // 날짜 클릭 이벤트
   const handleDateClick = (day) => {
     const year = currentMonth.getFullYear();
-    const month = currentMonth.getMonth() + 1; // 0부터 시작하므로 +1
-    const selectedDate = new Date(year, month - 1, day); // 선택한 날짜 객체 생성
-    const formattedDate = format(selectedDate, "yyyy-MM-dd"); // yyyy-MM-dd 형식으로 변환
-
-    // 데이터 배열에서 선택한 날짜에 해당하는 데이터 찾기
-    const selectedData = dataDates.find((item) => {
-      if (!item || !item.date) return false; // 유효하지 않은 데이터 무시
-      const itemDateFormatted = format(new Date(item.date), "yyyy-MM-dd"); // API 데이터 날짜 포맷
-      return itemDateFormatted === formattedDate; // 선택된 날짜와 비교
-    });
-
-    // 결과 출력
-    console.log(
-      selectedData
-        ? `{ date: "${formattedDate}", totalCount: ${selectedData.totalCount} }`
-        : "해당 데이터 없음"
-    );
-
-    setSelectedDate(selectedDate); // 선택한 날짜를 상태로 설정
+    const month = currentMonth.getMonth() + 1;
+    const formattedDate = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    navigate(`/dashboard/${formattedDate}`); // 클릭한 날짜를 URL로 전달
   };
 
   // API 데이터 가져오기
@@ -122,17 +98,13 @@ const Calendar = () => {
       let backgroundColor = "transparent";
       if (totalCount > 0) {
         if (totalCount <= 50) {  
-          backgroundColor = "#9ec2e6"; // 옅은 녹색
+          backgroundColor = "#9ec2e6"; // 옅은 파란색
         } else if (totalCount <= 500) {
-          backgroundColor = "#4083c7"; // 중간 녹색
+          backgroundColor = "#4083c7"; // 중간 파란색
         } else if (totalCount <= 1000) {
-          backgroundColor = "#0c3259"; // 진한 녹색
+          backgroundColor = "#0c3259"; // 진한 파란색
         }
       }
-
-      const date = new Date(year, month, day);
-      const isSunday = date.getDay() === 0; // 일요일 확인
-      const isSaturday = date.getDay() === 6; // 토요일 확인
 
       days.push(
         <button
@@ -147,7 +119,7 @@ const Calendar = () => {
             border: "none",
             borderRadius: "50%", // 원형
             backgroundColor: backgroundColor, // totalCount에 따라 색상 변경
-            color: totalCount > 0 ? "#fff" : isSunday ? "red" : isSaturday ? "blue" : "#000",
+            color: totalCount > 0 ? "#fff" : "#000",
             cursor: "pointer",
             margin: "5px",
             fontSize: "14px",
@@ -163,43 +135,32 @@ const Calendar = () => {
 
   return (
     <div className="flex flex-col items-center p-4 bg-slate-100 rounded-lg">
-    <div className="w-full max-w-md p-4 border border-gray-300 rounded-md shadow-md bg-white">
-      {/* 연도 및 월 변경 버튼 */}
-      <div className="flex justify-between items-center mb-4 text-gray-700">
-        <button onClick={handlePrevMonth} className="px-2 py-1 text-gray-500">
-          ‹
-        </button>
-        <span className="font-bold text-lg">
-          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-        </span>
-        <button onClick={handleNextMonth} className="px-2 py-1 text-gray-500">
-          ›
-        </button>
-      </div>
+      <div className="w-full max-w-md p-4 border border-gray-300 rounded-md shadow-md bg-white">
+        {/* 연도 및 월 변경 버튼 */}
+        <div className="flex justify-between items-center mb-4 text-gray-700">
+          <button onClick={handlePrevMonth} className="px-2 py-1 text-gray-500">
+            ‹
+          </button>
+          <span className="font-bold text-lg">
+            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+          </span>
+          <button onClick={handleNextMonth} className="px-2 py-1 text-gray-500">
+            ›
+          </button>
+        </div>
 
-      {/* 요일 표시 */}
-      <div className="grid grid-cols-7 text-center text-gray-500 font-bold text-sm mb-2">
-        {daysOfWeek.map((day, index) => (
-          <div key={index}>{day}</div>
-        ))}
-      </div>
+        {/* 요일 표시 */}
+        <div className="grid grid-cols-7 text-center text-gray-500 font-bold text-sm mb-2">
+          {daysOfWeek.map((day, index) => (
+            <div key={index}>{day}</div>
+          ))}
+        </div>
 
-      {/* 날짜 렌더링 */}
-      <div className="grid grid-cols-7 gap-1">{renderDays()}</div>
+        {/* 날짜 렌더링 */}
+        <div className="grid grid-cols-7 gap-1">{renderDays()}</div>
+      </div>
     </div>
-  </div>
   );
-};
-
-// 공통 화살표 버튼 스타일
-const arrowButtonStyle = {
-  backgroundColor: "transparent",
-  border: "none",
-  borderRadius: "4px",
-  padding: "5px 10px",
-  cursor: "pointer",
-  fontSize: "16px",
-  fontWeight: "bold",
 };
 
 export default Calendar;

@@ -13,6 +13,7 @@ const CRCDetailPage = lazy(()=>import("../Dashboard/CRCDetailPage"))
 const VideoUploader = lazy(()=>import("../Dashboard/VideoUploader"))
 const Logout = lazy(()=>import("../Pages/Logout"))
 const LTDetailPage = lazy(()=>import("../Dashboard/LTDetailPage"))
+const CalendarDetailPage = lazy(()=>import("../Dashboard/CalendarDetailPage"))
 
 
 // // 로그아웃 시 상태 변경
@@ -60,6 +61,13 @@ const root = createBrowserRouter([
       element:
         <Suspense fallback={Loading}>
           <DashBoard/>
+        </Suspense>
+    },
+    {
+      path: "/dashboard/:date",
+      element:
+        <Suspense fallback={Loading}>
+          <CalendarDetailPage/> {/* 날짜별 데이터를 렌더링할 컴포넌트 */}
         </Suspense>
     },
     {

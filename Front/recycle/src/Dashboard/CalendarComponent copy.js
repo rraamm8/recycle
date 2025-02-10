@@ -162,45 +162,32 @@ const Calendar = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 rounded-lg max-w-md mx-auto bg-slate-200">
-      {/* <h2 style={{ textAlign: "center", fontWeight: "bold", fontSize:"24px" }}>History</h2> 제목 */}
-
-      <div
-        style={{
-          width: "370px",
-          margin: "0 auto",
-          padding: "16px",
-          border: "2px solid gray", // 테두리
-          borderRadius: "8px", // 둥근 모서리
-          boxSizing: "border-box",
-          boxShadow: "0px 0px 3px gray",
-          background:"white"
-        }}
-      >
-        {/* 연도 및 월 변경 버튼 */}
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "16px", color: "#374151" }}>
-          <button onClick={handlePrevYear} style={arrowButtonStyle}>«</button>
-          <button onClick={handlePrevMonth} style={arrowButtonStyle}>‹</button>
-          <span style={{ fontSize: "16px", fontWeight: "bold", color: "gray" }}>
-            {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
-          </span>
-          <button onClick={handleNextMonth} style={arrowButtonStyle}>›</button>
-          <button onClick={handleNextYear} style={arrowButtonStyle}>»</button>
-        </div>
-
-        {/* 요일 표시 */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", textAlign: "center", fontWeight: "bold", marginBottom: "8px" }}>
-          {daysOfWeek.map((day, index) => (
-            <div key={index} style={{ padding: "8px 0" }}>{day}</div>
-          ))}
-        </div>
-
-        {/* 날짜 렌더링 */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "2px" }}>
-          {renderDays()}
-        </div>
+    <div className="flex flex-col items-center p-4 bg-slate-100 rounded-lg">
+    <div className="w-full max-w-md p-4 border border-gray-300 rounded-md shadow-md bg-white">
+      {/* 연도 및 월 변경 버튼 */}
+      <div className="flex justify-between items-center mb-4 text-gray-700">
+        <button onClick={handlePrevMonth} className="px-2 py-1 text-gray-500">
+          ‹
+        </button>
+        <span className="font-bold text-lg">
+          {monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}
+        </span>
+        <button onClick={handleNextMonth} className="px-2 py-1 text-gray-500">
+          ›
+        </button>
       </div>
+
+      {/* 요일 표시 */}
+      <div className="grid grid-cols-7 text-center text-gray-500 font-bold text-sm mb-2">
+        {daysOfWeek.map((day, index) => (
+          <div key={index}>{day}</div>
+        ))}
+      </div>
+
+      {/* 날짜 렌더링 */}
+      <div className="grid grid-cols-7 gap-1">{renderDays()}</div>
     </div>
+  </div>
   );
 };
 

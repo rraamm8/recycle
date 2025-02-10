@@ -1,5 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
-import { Link } from "react-router-dom";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -11,292 +10,235 @@ import {
 } from "recharts";
 import Sidebar from "./Sidebar";
 
-/** 병 종류 옵션 (맨 앞에 "전체") */
-const BOTTLE_TYPE_MAPPING = {
-  "06_brown_bottle": "갈색병",
-  "06_brown_bottle+dirty": "갈색병(오염)",
-  "06_brown_bottle+dirty+multi": "갈색병(오염+복합)",
-  "06_brown_bottle+multi": "갈색병(복합)",
-  "07_green_bottle": "초록병",
-  "07_green_bottle+dirty": "초록병(오염)",
-  "07_green_bottle+dirty+multi": "초록병(오염+복합)",
-  "07_green_bottle+multi": "초록병(복합)",
-  "08_white_bottle": "흰색병",
-  "08_white_bottle+dirty": "흰색병(오염)",
-  "08_white_bottle+dirty+multi": "흰색병(오염+복합)",
-  "08_white_bottle+multi": "흰색병(복합)",
-  "09_glass": "유리병",
-  "09_glass+dirty": "유리병(오염)",
-  "09_glass+dirty+multi": "유리병(오염+복합)",
-  "09_glass+multi": "유리병(복합)",
-};
-
-/** 병 종류 옵션 */
-const BOTTLE_TYPE_OPTIONS = [
-  { label: "전체", value: "전체" },
-  ...Object.entries(BOTTLE_TYPE_MAPPING).map(([key, value]) => ({
-    label: value,
-    value: key,
-  })),
-];
-
-/** 기간 옵션: 주간, 월간, 연간 */
-const PERIOD_OPTIONS = [
-  { label: "주간", value: "WEEKLY" },
-  { label: "월간", value: "MONTHLY" },
-  { label: "연간", value: "YEARLY" },
-];
-
-/** 주간용 요일 순서 & 약자 매핑 */
-const WEEK_DAYS = [
-  { full: "Monday", short: "Mon" },
-  { full: "Tuesday", short: "Tue" },
-  { full: "Wednesday", short: "Wed" },
-  { full: "Thursday", short: "Thu" },
-  { full: "Friday", short: "Fri" },
-  { full: "Saturday", short: "Sat" },
-  { full: "Sunday", short: "Sun" },
-];
-
-/** 월 약자 배열 (인덱스 0=Jan, 1=Feb, ... 11=Dec) */
-const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun",
-  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
 function LearningTimeChart() {
-  const [reports, setReports] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  // 병 종류 / 기간 선택
-  const [selectedBottleType, setSelectedBottleType] = useState("전체");
-  const [selectedPeriod, setSelectedPeriod] = useState("WEEKLY");
+  const [data, setData] = useState([]);
+  const [chartData, setChartData] = useState([]);
+  const [selectedFilter, setSelectedFilter] = useState("연도별");
+  const [selectedYear, setSelectedYear] = useState("전체");
+  const [selectedMonth, setSelectedMonth] = useState("전체");
+  const [selectedDay, setSelectedDay] = useState("전체");
 
   // 데이터 로드
   useEffect(() => {
     fetch("http://10.125.121.221:8080/api/detections/result")
-      .then((res) => {
-        if (!res.ok) {
-          throw new Error("Failed to fetch data");
-        }
-        return res.json();
+      .then((res) => res.json())
+      .then((result) => {
+        setData(result);
+        setChartData(groupByYear(result)); // 기본값: 연도별
       })
-      .then((data) => {
-        setReports(data);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+      .catch((err) => console.error("Error loading data:", err));
   }, []);
 
-   // 병 타입 필터링
-   const filteredData = useMemo(() => {
-    if (!reports.length) return [];
-    return reports.filter((row) => {
-      if (selectedBottleType !== "전체") {
-        return row.bottleType === selectedBottleType;
-      }
-      return true;
-    });
-  }, [reports, selectedBottleType]);
+  // 연도 리스트 생성
+  const years = useMemo(() => {
+    const uniqueYears = [...new Set(data.map((item) => new Date(item.timePeriod).getFullYear()))];
+    return uniqueYears.sort((a, b) => a - b);
+  }, [data]);
 
-  // 병 타입 필터
-  const filterByBottleType = (data, bottleType) => {
-    if (bottleType === "전체") return data;
-    return data.filter((r) => r.bottleType === bottleType);
-  };
+  // 월 리스트
+  const months = Array.from({ length: 12 }, (_, i) => i + 1);
 
-  // 주간 그룹화 (월~일, 없으면 0)
-  const groupWeekly = (data) => {
-    const daySums = {}; // { Monday: 10, Tuesday: 20, ... }
+  // 데이터 그룹화 함수
+  const groupByYear = (data) => {
+    const yearMap = {};
     data.forEach((item) => {
-      const day = item.dayOfWeek; // "Monday"~"Sunday"
-      if (!daySums[day]) {
-        daySums[day] = 0;
-      }
-      daySums[day] += item.totalCount || 0;
+      const year = new Date(item.timePeriod).getFullYear();
+      yearMap[year] = (yearMap[year] || 0) + item.totalCount;
     });
-
-    // WEEK_DAYS 순서대로 배열 생성
-    return WEEK_DAYS.map(({ full, short }) => ({
-      label: short,             // ex) "Mon"
-      total: daySums[full] || 0,
-    }));
+    return Object.keys(yearMap).map((key) => ({ label: key, total: yearMap[key] }));
   };
 
-  // 월간 그룹화 (1~12월, 없으면 0)
-  const groupMonthly = (data) => {
-    // 1) (month: totalCount) 형태로 합산
-    const monthSums = {}; // key: 0~11, value: sum
-    data.forEach((item) => {
-      const d = new Date(item.timePeriod);
-      const m = d.getMonth(); // 0~11
-      if (!monthSums[m]) {
-        monthSums[m] = 0;
-      }
-      monthSums[m] += item.totalCount || 0;
+  const groupByMonth = (data, year) => {
+    const filtered = data.filter((item) => new Date(item.timePeriod).getFullYear() === parseInt(year));
+    const monthMap = {};
+    filtered.forEach((item) => {
+      const month = new Date(item.timePeriod).getMonth() + 1;
+      monthMap[month] = (monthMap[month] || 0) + item.totalCount;
     });
-
-
-    // 2) 0~11 순회하며 배열 생성
-    return Array.from({ length: 12 }, (_, i) => ({
-      label: MONTH_LABELS[i],   // "Jan"..."Dec"
-      total: monthSums[i] || 0,
-    }));
-
+    return months.map((month) => ({ label: `${month}월`, total: monthMap[month] || 0 }));
   };
 
-  // 연간 그룹화 (데이터에 등장하는 모든 연도 or 고정 범위)
-  const groupYearly = (data) => {
-    // 1) 연도별 합산
-    const yearSums = {}; // { 2025: 30, 2026: 40, ... }
-    data.forEach((item) => {
-      const d = new Date(item.timePeriod);
-      const y = d.getFullYear();
-      if (!yearSums[y]) {
-        yearSums[y] = 0;
-      }
-      yearSums[y] += item.totalCount || 0;
+  const groupByDay = (data, year, month) => {
+    const filtered = data.filter(
+      (item) =>
+        new Date(item.timePeriod).getFullYear() === parseInt(year) &&
+        new Date(item.timePeriod).getMonth() + 1 === parseInt(month)
+    );
+    const dayMap = {};
+    filtered.forEach((item) => {
+      const day = new Date(item.timePeriod).getDate();
+      dayMap[day] = (dayMap[day] || 0) + item.totalCount;
     });
-
-    // 2) 필요한 범위만큼 연도를 순회
-    // 방법 A) 데이터에 있는 최소~최대 연도만 표시
-    const allYears = Object.keys(yearSums)
-      .map((y) => parseInt(y))
-      .sort((a, b) => a - b);
-
-    // 최종 배열
-    return allYears.map((y) => ({
-      label: String(y),      // "2025" 등
-      total: yearSums[y],
-    }));
-
-    // 방법 B) 미리 2019~2025 등 고정 범위를 돌며, 없는 해는 0
-    // const fixedRange = [2019, 2020, 2021, 2022, 2023, 2024, 2025];
-    // return fixedRange.map((y) => ({
-    //   label: String(y),
-    //   total: yearSums[y] || 0,
-    // }));
+    return Array.from({ length: 31 }, (_, i) => ({ label: `${i + 1}일`, total: dayMap[i + 1] || 0 }));
   };
 
-  // 기간(주간/월간/연간)에 따라 데이터 그룹화
-  const groupByPeriod = (data, period) => {
-    if (period === "WEEKLY") {
-      return groupWeekly(data);
-    } else if (period === "MONTHLY") {
-      return groupMonthly(data);
-    } else if (period === "YEARLY") {
-      return groupYearly(data);
+  const groupByHour = (data, year, month, day) => {
+    const filtered = data.filter(
+      (item) =>
+        new Date(item.timePeriod).getFullYear() === parseInt(year) &&
+        new Date(item.timePeriod).getMonth() + 1 === parseInt(month) &&
+        new Date(item.timePeriod).getDate() === parseInt(day)
+    );
+    const hourMap = {};
+    filtered.forEach((item) => {
+      const hour = new Date(item.timePeriod).getHours();
+      hourMap[hour] = (hourMap[hour] || 0) + item.totalCount;
+    });
+    return Array.from({ length: 24 }, (_, i) => ({ label: `${i}시`, total: hourMap[i] || 0 }));
+  };
+
+  useEffect(() => {
+    if (selectedFilter === "연도별") {
+      setChartData(groupByYear(data));
+    } else if (selectedFilter === "월별" && selectedYear !== "전체") {
+      setChartData(groupByMonth(data, selectedYear));
+    } else if (selectedFilter === "일별" && selectedYear !== "전체" && selectedMonth !== "전체") {
+      if (selectedDay === "전체") {
+        setChartData(groupByDay(data, selectedYear, selectedMonth));
+      } else {
+        setChartData(groupByHour(data, selectedYear, selectedMonth, selectedDay));
+      }
     }
-    return [];
-  };
+  }, [data, selectedFilter, selectedYear, selectedMonth, selectedDay]);
 
-  // 최종 차트 데이터
-  const chartData = useMemo(() => {
-    if (!reports || reports.length === 0) return [];
-    // 1) 병 필터
-    let filtered = filterByBottleType(reports, selectedBottleType);
-    // 2) 기간별 그룹
-    return groupByPeriod(filtered, selectedPeriod);
-  }, [reports, selectedBottleType, selectedPeriod]);
-
-  // 로딩/에러 처리
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>Error: {error}</div>;
-
- 
-
+  // 테이블 데이터 필터링
+  const filteredTableData = useMemo(() => {
+    return data.filter((row) => {
+      const year = selectedYear !== "전체" ? new Date(row.timePeriod).getFullYear() === parseInt(selectedYear) : true;
+      const month =
+        selectedMonth !== "전체"
+          ? new Date(row.timePeriod).getMonth() + 1 === parseInt(selectedMonth)
+          : true;
+      const day =
+        selectedDay !== "전체"
+          ? new Date(row.timePeriod).getDate() === parseInt(selectedDay)
+          : true;
+      return year && month && day;
+    });
+  }, [data, selectedYear, selectedMonth, selectedDay]);
 
   return (
-    <div className="flex">
-
-      <Sidebar />
-
-      <div className="flex-1 h-screen overflow-y-auto p-6 bg-gray-100">
-        <div className="p-6 max-w-6xl mx-auto">
-          <h2 className="text-center mb-4 font-bold text-2xl text-gray-800">
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        backgroundImage: `url('/video/g4.svg')`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 h-screen overflow-y-auto p-4 sm:p-6">
+          <h2 className="text-xl sm:text-3xl font-bold mb-4 text-center ">
             기간별 병 수거량
           </h2>
-
-          {/* 드롭다운 2개 */}
-          <div className="flex flex-col sm:flex-row justify-end gap-4 mb-4">
-            {/* 병 종류 */}
+          <div className="max-w-7xl mx-auto sm:flex-row gap-2 sm:gap-4 mb-4 ">
             <select
-              value={selectedBottleType}
-              onChange={(e) => setSelectedBottleType(e.target.value)}
-              className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
+              value={selectedFilter}
+              onChange={(e) => {
+                setSelectedFilter(e.target.value);
+                setSelectedYear("전체");
+                setSelectedMonth("전체");
+                setSelectedDay("전체");
+              }}
+              className="border border-slate-400 p-2 rounded bg-slate-200"
             >
-              {BOTTLE_TYPE_OPTIONS.map((opt, index) => (
-                <option key={index} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
+              <option value="연도별">연도별</option>
+              <option value="월별">월별</option>
+              <option value="일별">일별</option>
             </select>
-
-            {/* 기간 */}
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
-            >
-              {PERIOD_OPTIONS.map((p) => (
-                <option key={p.value} value={p.value}>
-                  {p.label}
-                </option>
-              ))}
-            </select>
-           
-          </div>
-
-          {/* 차트 */}
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="total"
-                stroke="#0c3259"
-                strokeWidth={3}
-                dot={{ r: 5 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-          <div className="mt-6">
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead>
-                <tr>
-                  <th className="border border-gray-300 p-2">요일</th>
-                  <th className="border border-gray-300 p-2">비디오 이름</th>
-                  <th className="border border-gray-300 p-2">병 종류</th>
-                  <th className="border border-gray-300 p-2">재활용 여부</th>
-                  <th className="border border-gray-300 p-2">총 개수</th>
-                  <th className="border border-gray-300 p-2">탄소 배출 감소량</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredData.map((row, index) => (
-                  <tr
-                    key={index}
-                    className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}
-                  >
-                    <td className="border border-gray-300 p-2">{row.dayOfWeek}</td>
-                    <td className="border border-gray-300 p-2">{row.videoName}</td>
-                    <td className="border border-gray-300 p-2">{row.bottleType}</td>
-                    <td className="border border-gray-300 p-2">
-                      {row.recyclable ? "가능" : "불가능"}
-                    </td>
-                    <td className="border border-gray-300 p-2">{row.totalCount}</td>
-                    <td className="border border-gray-300 p-2">
-                      {parseFloat(row.totalCarbonReduction).toFixed(2)}
-                    </td>
-                  </tr>
+            {selectedFilter !== "연도별" && (
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  setSelectedMonth("전체");
+                  setSelectedDay("전체");
+                }}
+                className="ml-4 border p-2 rounded "
+              >
+                <option value="전체">전체</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
                 ))}
-              </tbody>
-            </table>
+              </select>
+            )}
+            {selectedFilter === "일별" && selectedYear !== "전체" && (
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(e.target.value);
+                  setSelectedDay("전체");
+                }}
+                className="ml-4 border p-2 rounded "
+              >
+                <option value="전체">전체</option>
+                {months.map((month) => (
+                  <option key={month} value={month}>
+                    {month}월
+                  </option>
+                ))}
+              </select>
+            )}
+            {selectedFilter === "일별" && selectedMonth !== "전체" && (
+              <select
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value)}
+                className="ml-4 border p-2 rounded "
+              >
+                <option value="전체">전체</option>
+                {Array.from({ length: 31 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}일
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="max-w-7xl mx-auto mb-6  bg-white p-4 rounded">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="total" stroke="#8884d8" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="max-w-7xl mx-auto  bg-white p-4 rounded">
+            <div className="overflow-y-auto" style={{ maxHeight: "400px" }}>
+              <table className="min-w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">요일</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">비디오 이름</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">병 종류</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">재활용 여부</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">총 개수</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">탄소 배출 감소량</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTableData.map((row, index) => (
+                    <tr key={index}>
+                      <td className="border border-gray-300 p-2">{row.dayOfWeek}</td>
+                      <td className="border border-gray-300 p-2">{row.videoName}</td>
+                      <td className="border border-gray-300 p-2">{row.bottleType}</td>
+                      <td className="border border-gray-300 p-2">{row.recyclable ? "가능" : "불가능"}</td>
+                      <td className="border border-gray-300 p-2">{row.totalCount}</td>
+                      <td className="border border-gray-300 p-2">
+                        {parseFloat(row.totalCarbonReduction).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>

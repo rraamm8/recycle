@@ -9,6 +9,7 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { FaChartLine } from "react-icons/fa6";
+import { FaCloudUploadAlt } from "react-icons/fa";
 
 const Sidebar = () => {
   const [active, setActive] = useState("홈");
@@ -16,7 +17,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Home", icon: <FaHome />, path: "/dashboard" },
     { name: "Chart", icon: <FaChartLine />, path: "/LTDetailPage" },
-    { name: "프로필", icon: <FaUser /> },
+    { name: "Upload", icon: <FaCloudUploadAlt />, path:"/VideoUploader" },
     { name: "메시지", icon: <FaEnvelope /> },
     { name: "설정", icon: <FaCog /> },
     { name: "Sign Out", icon: <FaSignOutAlt />, path: "/logout" },
