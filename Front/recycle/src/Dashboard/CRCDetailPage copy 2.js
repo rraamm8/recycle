@@ -9,6 +9,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
+import Sidebar from "./Sidebar";
 
 /** 병 종류 옵션 (맨 앞에 "전체") */
 const BOTTLE_TYPE_MAPPING = {
@@ -88,6 +89,17 @@ function LearningTimeChart() {
         setLoading(false);
       });
   }, []);
+
+   // 병 타입 필터링
+   const filteredData = useMemo(() => {
+    if (!reports.length) return [];
+    return reports.filter((row) => {
+      if (selectedBottleType !== "전체") {
+        return row.bottleType === selectedBottleType;
+      }
+      return true;
+    });
+  }, [reports, selectedBottleType]);
 
   // 병 타입 필터
   const filterByBottleType = (data, bottleType) => {
@@ -194,67 +206,98 @@ function LearningTimeChart() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div
-      className="max-w-4xl mx-auto p-3 my-4 bg-gray-50 rounded-lg shadow-md">
-      <h2 className="text-center mb-4 font-bold text-2xl text-gray-800">
-        기간별 병 수거량
-      </h2>
+    <div className="flex">
 
-      {/* 드롭다운 2개 */}
-      <div className="flex flex-col sm:flex-row justify-end gap-4 mb-4">
-        {/* 병 종류 */}
-        <select
-          value={selectedBottleType}
-          onChange={(e) => setSelectedBottleType(e.target.value)}
-          className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
-        >
-          {BOTTLE_TYPE_OPTIONS.map((opt, index) => (
-            <option key={index} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
+      <Sidebar />
 
-        {/* 기간 */}
-        <select
-          value={selectedPeriod}
-          onChange={(e) => setSelectedPeriod(e.target.value)}
-          className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
-        >
-          {PERIOD_OPTIONS.map((p) => (
-            <option key={p.value} value={p.value}>
-              {p.label}
-            </option>
-          ))}
-        </select>
-        <Link to={'/LTDetailPage'}>
-        <button
-        className="p-2 border border-gray-300 bg-white mr-1 rounded text-sm w-full sm:w-auto"
-        
-        >
-          상세
-        </button>
-        </Link>
+      <div className="flex-1 h-screen overflow-y-auto p-6 bg-gray-100">
+        <div className="p-6 max-w-6xl mx-auto">
+          <h2 className="text-center mb-4 font-bold text-2xl text-gray-800">
+            기간별 병 수거량
+          </h2>
+
+          {/* 드롭다운 2개 */}
+          <div className="flex flex-col sm:flex-row justify-end gap-4 mb-4">
+            {/* 병 종류 */}
+            <select
+              value={selectedBottleType}
+              onChange={(e) => setSelectedBottleType(e.target.value)}
+              className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
+            >
+              {BOTTLE_TYPE_OPTIONS.map((opt, index) => (
+                <option key={index} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+
+            {/* 기간 */}
+            <select
+              value={selectedPeriod}
+              onChange={(e) => setSelectedPeriod(e.target.value)}
+              className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
+            >
+              {PERIOD_OPTIONS.map((p) => (
+                <option key={p.value} value={p.value}>
+                  {p.label}
+                </option>
+              ))}
+            </select>
+           
+          </div>
+
+          {/* 차트 */}
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="label" />
+              <YAxis />
+              <Tooltip />
+              <Line
+                type="monotone"
+                dataKey="total"
+                stroke="#0c3259"
+                strokeWidth={3}
+                dot={{ r: 5 }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+          <div className="mt-6">
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead>
+                <tr>
+                  <th className="border border-gray-300 p-2">요일</th>
+                  <th className="border border-gray-300 p-2">비디오 이름</th>
+                  <th className="border border-gray-300 p-2">병 종류</th>
+                  <th className="border border-gray-300 p-2">재활용 여부</th>
+                  <th className="border border-gray-300 p-2">총 개수</th>
+                  <th className="border border-gray-300 p-2">탄소 배출 감소량</th>
+                </tr>
+              </thead>
+              <tbody>
+                {filteredData.map((row, index) => (
+                  <tr
+                    key={index}
+                    className={index % 2 === 0 ? "bg-white" : "bg-gray-100"}
+                  >
+                    <td className="border border-gray-300 p-2">{row.dayOfWeek}</td>
+                    <td className="border border-gray-300 p-2">{row.videoName}</td>
+                    <td className="border border-gray-300 p-2">{row.bottleType}</td>
+                    <td className="border border-gray-300 p-2">
+                      {row.recyclable ? "가능" : "불가능"}
+                    </td>
+                    <td className="border border-gray-300 p-2">{row.totalCount}</td>
+                    <td className="border border-gray-300 p-2">
+                      {parseFloat(row.totalCarbonReduction).toFixed(2)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
-
-      {/* 차트 */}
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={chartData}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="label" />
-          <YAxis />
-          <Tooltip />
-          <Line
-            type="monotone"
-            dataKey="total"
-            stroke="#0c3259"
-            strokeWidth={3}
-            dot={{ r: 5 }}
-          />
-        </LineChart>
-      </ResponsiveContainer>
     </div>
-
   );
 }
 

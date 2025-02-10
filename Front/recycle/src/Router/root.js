@@ -11,6 +11,9 @@ const DashBoard = lazy(()=> import("../Dashboard/DashBoardMain"))
 const FileUpload = lazy(()=> import("../Dashboard/FileUpload"))
 const CRCDetailPage = lazy(()=>import("../Dashboard/CRCDetailPage"))
 const VideoUploader = lazy(()=>import("../Dashboard/VideoUploader"))
+const Logout = lazy(()=>import("../Pages/Logout"))
+const LTDetailPage = lazy(()=>import("../Dashboard/LTDetailPage"))
+
 
 // // 로그아웃 시 상태 변경
 // const handleLogout = () => {
@@ -79,7 +82,21 @@ const root = createBrowserRouter([
         <Suspense fallback={Loading}>
           <VideoUploader/>
         </Suspense>
-    }
+    },
+    {
+      path: "/logout",
+      element:
+        <Suspense fallback={Loading}>
+          <Logout />
+        </Suspense>
+    },
+    {
+      path: "/LTDetailPage",
+      element:
+        <Suspense fallback={Loading}>
+          <LTDetailPage />
+        </Suspense>
+    },
   ])
  export default root;
   // return <RouterProvider router={router} />;

@@ -69,7 +69,7 @@ const RecentWeekBarChart = () => {
     //   </h2>
     //   <div className="bg-slate-800 p-4 rounded-lg">
     <div className="ml-6 mr-6 p-6 max-w-auto mx-auto bg-slate-800 rounded-lg">
-      <h2 className="text-lg font-bold text-white mb-3 ml-8">최근 일주일간 총 탄소배출 감소량</h2>
+      <h2 className="text-lg font-bold text-white mb-3 ml-8">요일별 총 탄소절감량</h2>
         <ResponsiveContainer width="100%" height={242}>
           <BarChart data={weeklyData}>
             <Tooltip content={<CustomTooltip />} />
