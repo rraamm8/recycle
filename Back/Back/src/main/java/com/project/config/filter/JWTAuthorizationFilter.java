@@ -1,7 +1,6 @@
 package com.project.config.filter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -62,4 +61,3 @@ public class JWTAuthorizationFilter extends OncePerRequestFilter {
 }
 // OncePerRequestFilter를 상속받게 되면 하나의 요청에 대해서 단 한번만 필터를 거치게 된다.
 // 예를 들어 forwarding 되어 다른 페이지로 이동하게 되더라도 다시 이 필터를 거치지 않게 한다.
-

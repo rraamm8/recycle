@@ -18,21 +18,19 @@ public class Users {
 	
 	@Column(nullable = false)
 	@NotBlank
-	private String name;
+	private String name; // 사용자 이름
 	
 	@Column(unique = true, nullable = false)
 	@NotBlank
 	@Size(min = 6, max = 20)
-	private String userId;
+	private String userId; // 사용자 아이디 (로그인용)
 	
 	@Column(nullable = false)
 	@NotBlank
 	@Size(min = 6)
-	private String password;
-	
-//	private String role = "user";
+	private String password; // 비밀번호 (해싱됨)
 	
 	@Column(nullable = false, updatable = false)
-	private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now();
+	private java.time.LocalDateTime createdAt = java.time.LocalDateTime.now(); // 생성일
 
 }
