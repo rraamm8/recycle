@@ -1,11 +1,11 @@
-import React, { useState } from "react";
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
-export default function Login({ onClose, onSignUp }) {
+export default function Login() {
   const navigate = useNavigate();
   const [user, setUser] = useState({
-    userId: "",
-    password: "",
+    userId: '',
+    password: '',
   });
 
   const handleChange = (e) => {
@@ -15,12 +15,12 @@ export default function Login({ onClose, onSignUp }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // 로그인 로직 추가
-    console.log("로그인 시도:", user);
+
     const loginData = {
       userId: user.userId,
       password: user.password,
     };
+
     try {
       const res = await fetch('http://10.125.121.221:8080/login', {
         method: 'POST',
@@ -46,21 +46,20 @@ export default function Login({ onClose, onSignUp }) {
     } catch (error) {
       console.error('error', error);
     }
-
-
   };
 
-
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+    <div className="flex items-center justify-center min-h-screen px-4 sm:px-8">
       <div className="bg-white/70 w-full max-w-xs p-6 sm:p-8 h-auto sm:h-80 rounded-xl shadow-md relative">
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">✕</button>
-        <h1 className="text-4xl sm:text-6xl font-bold text-center text-white absolute -top-12 sm:-top-20 left-1/2 transform -translate-x-1/2">
+        <h1 className="text-4xl sm:text-6xl font-bold text-center text-white absolute -top-12 sm:-top-20 left-1/2 transform -translate-x-1/2 px-2 sm:px-4">
           Login
         </h1>
+
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label htmlFor="userId" className="block text-sm font-bold text-[#4d634b]">아이디</label>
+            <label htmlFor="userId" className="block text-sm font-bold text-[#4d634b]">
+              아이디
+            </label>
             <input
               type="text"
               id="userId"
@@ -72,7 +71,9 @@ export default function Login({ onClose, onSignUp }) {
             />
           </div>
           <div>
-            <label htmlFor="password" className="block text-sm font-bold text-[#4d634b]">비밀번호</label>
+            <label htmlFor="password" className="block text-sm font-bold text-[#4d634b]">
+              비밀번호
+            </label>
             <input
               type="password"
               id="password"
@@ -83,12 +84,20 @@ export default function Login({ onClose, onSignUp }) {
               className="w-full mt-1 p-2 mb-6 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
             />
           </div>
-          <button type="submit" className="w-full p-2 bg-[#4d634b] text-white font-semibold rounded-md hover:bg-[#3f513d] transition">
+          <button
+            type="submit"
+            className="w-full p-2 bg-[#4d634b] text-white font-semibold rounded-md hover:bg-[#3f513d] transition"
+          >
             로그인
           </button>
-          <button onClick={onSignUp} type="button" className="w-full mt-4 text-sm text-[#4d634b] cursor-pointer hover:underline">
-            회원가입
-          </button>
+          <Link to={'/signup'}>
+            <button
+              type="button"
+              className="w-full mt-4 text-sm text-[#4d634b] cursor-pointer hover:underline"
+            >
+              회원가입
+            </button>
+          </Link>
         </form>
       </div>
     </div>

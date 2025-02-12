@@ -11,70 +11,14 @@ export default function SignUp({ onClose }) {
 
   const [error, setError] = useState(""); // 오류 메시지 상태
   const [successMessage, setSuccessMessage] = useState(""); // 성공 메시지 상태
-  const [isUserIdAvailable, setIsUserIdAvailable] = useState(null); // 아이디 중복 확인 상태
 
-  // ✅ 입력값 변경 시 오류 메시지 초기화
   const handleInputChange = (e) => {
     const { id, value } = e.target;
-
-    setInputValue((prev) => {
-      const updatedValues = { ...prev, [id]: value };
-
-      if (id === "userId") {
-        setIsUserIdAvailable(null); // 아이디 변경 시 중복 확인 리셋
-        setSuccessMessage(""); // 성공 메시지 초기화
-        setError(""); // 에러 메시지도 초기화
-      } else if (id === "pwCheck" || id === "password") {
-        if (updatedValues.pwCheck === updatedValues.password) {
-          setError(""); // 비밀번호가 일치하면 오류 메시지 제거
-        }
-      }
-
-      return updatedValues;
-    });
-
-    setError(""); // 입력 변경 시 오류 메시지 초기화
+    setInputValue((prev) => ({ ...prev, [id]: value }));
   };
 
-  // ✅ 아이디 중복 확인 API 요청
-  const checkUserIdAvailability = async () => {
-    if (!inputValue.userId) {
-      setError("아이디를 입력하세요.");
-      return;
-    }
-
-    try {
-      const response = await fetch(`http://10.125.121.221:8080/users/check-id/${inputValue.userId}`);
-      // const data = await response.json();
-
-      if (response.status === 200) {
-        // 200 OK -> 이미 존재하는 아이디 (사용 불가)
-        setIsUserIdAvailable(false);
-        setError("이미 사용 중인 아이디입니다.");
-        setSuccessMessage("");
-      } else if (response.status === 404) {
-        // 404 에러가 뜨면 아이디 사용 가능하다고 처리
-        setIsUserIdAvailable(true);
-        setSuccessMessage("사용 가능한 아이디입니다.");
-        setError(""); // 에러 메시지 초기화
-      } else {
-        // const data = await response.json();
-        // setError(data.error || "서버 오류 발생");
-        setIsUserIdAvailable(null);
-        setError("서버 오류: 아이디 확인 실패");
-      }
-    } catch (err) {
-      setError("서버와 연결할 수 없습니다.");
-      setIsUserIdAvailable(null);
-    }
-  };
-
-  // ✅ 회원가입 요청
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // 기존 오류 메시지 초기화
-    setSuccessMessage(""); // 기존 성공 메시지 초기화
-    // setIsUserIdAvailable(null); // 중복 확인 상태 초기화 (⭐ 중요)
 
     if (!inputValue.agree) {
       setError("회원가입을 위해 정보 제공에 동의해야 합니다.");
@@ -85,12 +29,6 @@ export default function SignUp({ onClose }) {
       setError("비밀번호가 일치하지 않습니다.");
       return;
     }
-
-    if (isUserIdAvailable === false) {
-      setError("아이디가 이미 사용 중입니다.");
-      return;
-    }
-
 
     const requestBody = {
       userId: inputValue.userId,
@@ -114,9 +52,6 @@ export default function SignUp({ onClose }) {
         }, 2000);
       } else {
         setError(data.error || "회원가입 실패");
-        if (data.error.includes("이미 존재하는 아이디")) {
-          setIsUserIdAvailable(false); // 아이디가 중복되었음을 다시 표시
-        }
       }
     } catch (err) {
       setError("서버와 연결할 수 없습니다.");
@@ -131,32 +66,18 @@ export default function SignUp({ onClose }) {
           SignUp
         </h1>
         <form className="space-y-3" onSubmit={handleSubmit}>
-          {/* 아이디 입력 + 중복 확인 */}
           <div>
             <label htmlFor="userId" className="block text-sm font-bold text-[#4d634b]">아이디</label>
-            <div className="flex">
-              <input
-                type="text"
-                id="userId"
-                placeholder="아이디 입력"
-                value={inputValue.userId}
-                onChange={handleInputChange}
-                className="w-full mt-1 mb-3 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
-                required
-              />
-              <button
-                type="button"
-                className="w-1/3 ml-2  mt-1 my-3 bg-[#4d634b] text-white font-bold text-sm rounded-md hover:bg-[#3f513d] transition"
-                onClick={checkUserIdAvailability}
-              >
-                중복 확인
-              </button>
-            </div>
-            {/* {isUserIdAvailable === true && <p className="text-green-500 text-sm">사용 가능한 아이디입니다.</p>}
-            {isUserIdAvailable === false && <p className="text-red-500 text-sm">이미 사용 중인 아이디입니다.</p>} */}
+            <input
+              type="text"
+              id="userId"
+              placeholder="아이디 입력"
+              value={inputValue.userId}
+              onChange={handleInputChange}
+              className="w-full mt-1 mb-3 p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
+              required
+            />
           </div>
-
-          {/* 비밀번호 입력 */}
           <div>
             <label htmlFor="password" className="block text-sm font-bold text-[#4d634b]">비밀번호</label>
             <input
@@ -169,8 +90,6 @@ export default function SignUp({ onClose }) {
               required
             />
           </div>
-
-          {/* 비밀번호 확인 */}
           <div>
             <label htmlFor="pwCheck" className="block text-sm font-bold text-[#4d634b]">비밀번호 확인</label>
             <input
@@ -183,9 +102,7 @@ export default function SignUp({ onClose }) {
               required
             />
           </div>
-
-          {/* 이름 입력 */}
-          <div>
+          <div className='my-2'>
             <label htmlFor="name" className="block text-sm font-bold text-[#4d634b]">이름</label>
             <input
               type="text"
@@ -198,7 +115,6 @@ export default function SignUp({ onClose }) {
             />
           </div>
 
-          {/* 정보 제공 동의 체크 */}
           <div className="my-4">
             <label className="inline-flex items-center">
               <input
@@ -211,12 +127,14 @@ export default function SignUp({ onClose }) {
             </label>
           </div>
 
-          {/* 오류 / 성공 메시지 */}
           {error && <p className="text-red-500 text-sm text-center">{error}</p>}
           {successMessage && <p className="text-green-500 text-sm text-center">{successMessage}</p>}
 
-          {/* 회원가입 버튼 */}
-          <button type="submit" className="w-full py-2 text-white font-semibold rounded-md transition bg-[#4d634b] hover:bg-[#3f513d]">
+          <button
+            type="submit"
+            className={`w-full py-2 text-white font-semibold rounded-md transition ${inputValue.agree ? "bg-[#4d634b] hover:bg-[#3f513d]" : "bg-gray-400"}`}
+            disabled={!inputValue.agree}
+          >
             회원가입
           </button>
         </form>

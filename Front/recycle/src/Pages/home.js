@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import "../App.css";
-import Login from "./Login"; // 로그인 모달 컴포넌트 import
+import Login from "./Login";
+import SignUp from "./SignUp"; // 회원가입 모달 컴포넌트 import
 
 export default function Home() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalType, setModalType] = useState(null); // "login" or "signup"
 
-  const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const openLoginModal = () => setModalType("login");
+  const openSignUpModal = () => setModalType("signup");
+  const closeModal = () => setModalType(null);
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
@@ -19,16 +21,18 @@ export default function Home() {
         className="absolute inset-0 h-full w-full object-cover"
       ></video>
 
-      {/* 콘텐츠 레이어 (영상 위에 표시) */}
+      {/* 콘텐츠 레이어 */}
       <div className="overlay">
         {/* 로고 */}
-        <button onClick={openModal}>
+        <button onClick={openLoginModal}>
           <h1 className="text-4xl font-bold mb-6 tracking-wider">SEOREU</h1>
         </button>
       </div>
 
       {/* 로그인 모달 */}
-      {isModalOpen && <Login onClose={closeModal} />}
+      {modalType === "login" && <Login onClose={closeModal} onSignUp={openSignUpModal} />}
+      {/* 회원가입 모달 */}
+      {modalType === "signup" && <SignUp onClose={closeModal} />}
     </div>
   );
 }

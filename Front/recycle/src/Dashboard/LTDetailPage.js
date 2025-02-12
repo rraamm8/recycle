@@ -7,7 +7,6 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Brush, // 🔹 추가
 } from "recharts";
 import Sidebar from "./Sidebar";
 
@@ -102,40 +101,145 @@ function LearningTimeChart() {
     }
   }, [data, selectedFilter, selectedYear, selectedMonth, selectedDay]);
 
-  // ✅ 드래그 줌 기능: 선택된 영역의 데이터 개수를 확인하여 자동 변경
-  const handleZoom = (range) => {
-    const dataLength = range.endIndex - range.startIndex;
-
-    if (dataLength <= 5 && selectedFilter === "연도별") {
-      setSelectedFilter("월별");
-    } else if (dataLength <= 10 && selectedFilter === "월별") {
-      setSelectedFilter("일별");
-    } else if (dataLength > 10 && selectedFilter === "일별") {
-      setSelectedFilter("시간별");
-    }
-  };
+  // 테이블 데이터 필터링
+  const filteredTableData = useMemo(() => {
+    return data.filter((row) => {
+      const year = selectedYear !== "전체" ? new Date(row.timePeriod).getFullYear() === parseInt(selectedYear) : true;
+      const month =
+        selectedMonth !== "전체"
+          ? new Date(row.timePeriod).getMonth() + 1 === parseInt(selectedMonth)
+          : true;
+      const day =
+        selectedDay !== "전체"
+          ? new Date(row.timePeriod).getDate() === parseInt(selectedDay)
+          : true;
+      return year && month && day;
+    });
+  }, [data, selectedYear, selectedMonth, selectedDay]);
 
   return (
-    <div className="flex">
-      <Sidebar />
-      <div className="flex-1 h-screen overflow-y-auto p-4 sm:p-6">
-        <h2 className="text-xl sm:text-3xl font-bold mb-4 text-center">
-          기간별 병 수거량
-        </h2>
-
-        <div className="max-w-7xl mx-auto mb-6 bg-white p-4 rounded">
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={chartData}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="label" />
-              <YAxis />
-              <Tooltip />
-              <Line type="monotone" dataKey="total" stroke="#8884d8" />
-              
-              {/* ✅ 줌 기능 추가 */}
-              <Brush dataKey="label" height={20} stroke="#8884d8" onChange={handleZoom} />
-            </LineChart>
-          </ResponsiveContainer>
+    <div
+      style={{
+        width: "100%",
+        height: "100vh",
+        backgroundImage: `url('/video/g4.svg')`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+        backgroundPosition: "center",
+      }}
+    >
+      <div className="flex">
+        <Sidebar />
+        <div className="flex-1 h-screen overflow-y-auto p-4 sm:p-6">
+          <h2 className="text-xl sm:text-3xl font-bold mb-4 text-center ">
+            기간별 병 수거량
+          </h2>
+          <div className="max-w-7xl mx-auto sm:flex-row gap-2 sm:gap-4 mb-4 ">
+            <select
+              value={selectedFilter}
+              onChange={(e) => {
+                setSelectedFilter(e.target.value);
+                setSelectedYear("전체");
+                setSelectedMonth("전체");
+                setSelectedDay("전체");
+              }}
+              className="border border-slate-400 p-2 rounded bg-slate-200"
+            >
+              <option value="연도별">연도별</option>
+              <option value="월별">월별</option>
+              <option value="일별">일별</option>
+            </select>
+            {selectedFilter !== "연도별" && (
+              <select
+                value={selectedYear}
+                onChange={(e) => {
+                  setSelectedYear(e.target.value);
+                  setSelectedMonth("전체");
+                  setSelectedDay("전체");
+                }}
+                className="ml-4 border p-2 rounded "
+              >
+                <option value="전체">전체</option>
+                {years.map((year) => (
+                  <option key={year} value={year}>
+                    {year}
+                  </option>
+                ))}
+              </select>
+            )}
+            {selectedFilter === "일별" && selectedYear !== "전체" && (
+              <select
+                value={selectedMonth}
+                onChange={(e) => {
+                  setSelectedMonth(e.target.value);
+                  setSelectedDay("전체");
+                }}
+                className="ml-4 border p-2 rounded "
+              >
+                <option value="전체">전체</option>
+                {months.map((month) => (
+                  <option key={month} value={month}>
+                    {month}월
+                  </option>
+                ))}
+              </select>
+            )}
+            {selectedFilter === "일별" && selectedMonth !== "전체" && (
+              <select
+                value={selectedDay}
+                onChange={(e) => setSelectedDay(e.target.value)}
+                className="ml-4 border p-2 rounded "
+              >
+                <option value="전체">전체</option>
+                {Array.from({ length: 31 }, (_, i) => (
+                  <option key={i + 1} value={i + 1}>
+                    {i + 1}일
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+          <div className="max-w-7xl mx-auto mb-6  bg-white p-4 rounded">
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={chartData}>
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="label" />
+                <YAxis />
+                <Tooltip />
+                <Line type="monotone" dataKey="total" stroke="#8884d8" />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+          <div className="max-w-7xl mx-auto  bg-white p-4 rounded">
+            <div className="overflow-y-auto" style={{ maxHeight: "400px" }}>
+              <table className="min-w-full border-collapse border border-gray-300">
+                <thead>
+                  <tr>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">요일</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">비디오 이름</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">병 종류</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">재활용 여부</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">총 개수</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">탄소 배출 감소량</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredTableData.map((row, index) => (
+                    <tr key={index}>
+                      <td className="border border-gray-300 p-2">{row.dayOfWeek}</td>
+                      <td className="border border-gray-300 p-2">{row.videoName}</td>
+                      <td className="border border-gray-300 p-2">{row.bottleType}</td>
+                      <td className="border border-gray-300 p-2">{row.recyclable ? "가능" : "불가능"}</td>
+                      <td className="border border-gray-300 p-2">{row.totalCount}</td>
+                      <td className="border border-gray-300 p-2">
+                        {parseFloat(row.totalCarbonReduction).toFixed(2)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </div>
     </div>
