@@ -17,9 +17,9 @@ const Sidebar = () => {
   const menuItems = [
     { name: "Home", icon: <FaHome />, path: "/dashboard" },
     { name: "Chart", icon: <FaChartLine />, path: "/LTDetailPage" },
-    { name: "Upload", icon: <FaCloudUploadAlt />, path:"/VideoUploader" },
-    { name: "메시지", icon: <FaEnvelope /> },
-    { name: "설정", icon: <FaCog /> },
+    { name: "Upload", icon: <FaCloudUploadAlt />, path:"/fileupload" },
+    // { name: "메시지", icon: <FaEnvelope /> },
+    // { name: "설정", icon: <FaCog /> },
     { name: "Sign Out", icon: <FaSignOutAlt />, path: "/logout" },
   ];
 

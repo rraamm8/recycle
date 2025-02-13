@@ -1,101 +1,145 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
-export default function SignUp({ onClose }) {
+export default function SignUp({ onClose, onSwitchToLogin }) {
+  const navigate = useNavigate();
   const [inputValue, setInputValue] = useState({
-    userId: "",
-    password: "",
-    pwCheck: "",
-    name: "",
-    agree: false,
+    userId: "", // 아이디
+    validId: false, // 아이디 정규식 충족 여부
+    nonIdDuplication: null, // 아이디 중복 확인 여부 (true: 사용 가능, false: 중복됨, null: 아직 확인 안함)
+    password: "", // 비밀번호
+    validPw: false, // 비밀번호 정규식 충족 여부
+    pwCheck: "", // 비밀번호 확인
+    correctPwCheck: false, // 비밀번호 확인 일치 여부
+    username: "", // 이름
+    agree: false, // 정보 제공 동의 여부
   });
 
-  const [error, setError] = useState(""); // 오류 메시지 상태
-  const [successMessage, setSuccessMessage] = useState(""); // 성공 메시지 상태
-  const [isUserIdAvailable, setIsUserIdAvailable] = useState(null); // 아이디 중복 확인 상태
+  // 정규식 모음 객체
+  const inputRegexs = {
+    // 아이디: 영문 및 숫자로 구성, 6~20자
+    idRegex: /^[a-zA-Z0-9]{6,20}$/,
+    // 비밀번호: 최소 6자 이상의 영문 및 숫자 (필요 시 추가 규칙 적용 가능)
+    pwRegex: /^[a-zA-Z0-9]{6,}$/,
+  };
 
-  // ✅ 입력값 변경 시 오류 메시지 초기화
+  // 경고 메시지
+  const alertMessage = {
+    validId: "아이디는 6~20자의 영문 및 숫자만 가능합니다.",
+    nonIdDuplication: "이미 사용 중인 아이디입니다.",
+    validPw: "사용할 수 없는 비밀번호입니다.",
+    correctPwCheck: "비밀번호가 일치하지 않습니다.",
+    username: "이름이 입력되지 않았습니다.",
+    agree: "회원가입을 위해 정보 제공에 동의해야 합니다.",
+  };
+
+  // 안내 메시지
+  const passMessage = {
+    validId: "사용할 수 있는 아이디입니다.",
+    validpw: "사용할 수 있는 비밀번호입니다.",
+    correctPwCheck: "비밀번호가 일치합니다.",
+  };
+
+  // 입력값 변경 핸들러
   const handleInputChange = (e) => {
     const { id, value } = e.target;
 
     setInputValue((prev) => {
-      const updatedValues = { ...prev, [id]: value };
-
+      let updatedValues = { ...prev, [id]: value };
+       // 아이디 변경 시 중복 확인 결과 초기화
       if (id === "userId") {
-        setIsUserIdAvailable(null); // 아이디 변경 시 중복 확인 리셋
-        setSuccessMessage(""); // 성공 메시지 초기화
-        setError(""); // 에러 메시지도 초기화
-      } else if (id === "pwCheck" || id === "password") {
-        if (updatedValues.pwCheck === updatedValues.password) {
-          setError(""); // 비밀번호가 일치하면 오류 메시지 제거
-        }
-      }
+        updatedValues.validId = inputRegexs.idRegex.test(value);
 
+        updatedValues.nonIdDuplication = null; // 아이디 변경 시 중복 확인 초기화
+      } else if (id === "password") {
+        updatedValues.validPw = inputRegexs.pwRegex.test(value);
+        updatedValues.correctPwCheck = updatedValues.pwCheck === value;
+      } else if (id === "pwCheck") {
+        updatedValues.correctPwCheck = updatedValues.password === value;
+      }
       return updatedValues;
     });
-
-    setError(""); // 입력 변경 시 오류 메시지 초기화
   };
 
-  // ✅ 아이디 중복 확인 API 요청
+  // 아이디 중복 확인 API 호출 (JSON의 exists 값을 사용)
   const checkUserIdAvailability = async () => {
-    if (!inputValue.userId) {
-      setError("아이디를 입력하세요.");
+    if (!inputValue.validId) {
+      alert(alertMessage.validId);
       return;
     }
 
     try {
-      const response = await fetch(`http://10.125.121.221:8080/users/check-id/${inputValue.userId}`);
-      // const data = await response.json();
-
-      if (response.status === 200) {
-        // 200 OK -> 이미 존재하는 아이디 (사용 불가)
-        setIsUserIdAvailable(false);
-        setError("이미 사용 중인 아이디입니다.");
-        setSuccessMessage("");
+      const response = await fetch(
+        `http://10.125.121.221:8080/users/check-id/${inputValue.userId}`
+      );
+      // 백엔드 로직에 따르면,
+      // - 이미 존재하면 HTTP 200과 { exists: true }가 반환 → 중복 (nonIdDuplication: false)
+      // - 존재하지 않으면 HTTP 404와 { exists: false }가 반환 → 사용 가능 (nonIdDuplication: true)
+      
+      // data.exists가 true이면 아이디가 이미 존재하는 경우
+      if (response.ok) {
+        const data = await response.json();
+        console.log("check-id API response:", data);
+        if (data.exists === true) {
+          setInputValue((prev) => ({ ...prev, nonIdDuplication: false }));
+        } else {
+          // 예외 케이스 처리
+          setInputValue((prev) => ({ ...prev, nonIdDuplication: false }));
+        }
       } else if (response.status === 404) {
-        // 404 에러가 뜨면 아이디 사용 가능하다고 처리
-        setIsUserIdAvailable(true);
-        setSuccessMessage("사용 가능한 아이디입니다.");
-        setError(""); // 에러 메시지 초기화
+        const data = await response.json();
+        console.log("check-id API response (404):", data);
+        if (data.exists === false) {
+          setInputValue((prev) => ({ ...prev, nonIdDuplication: true }));
+        } else {
+          setInputValue((prev) => ({ ...prev, nonIdDuplication: true }));
+        }
       } else {
-        // const data = await response.json();
-        // setError(data.error || "서버 오류 발생");
-        setIsUserIdAvailable(null);
-        setError("서버 오류: 아이디 확인 실패");
+        alert("아이디 중복 확인에 실패했습니다.");
+        setInputValue((prev) => ({ ...prev, nonIdDuplication: null }));
       }
     } catch (err) {
-      setError("서버와 연결할 수 없습니다.");
-      setIsUserIdAvailable(null);
+      console.error(err);
+      alert("서버와 연결할 수 없습니다.");
+      setInputValue((prev) => ({ ...prev, nonIdDuplication: null }));
     }
   };
 
-  // ✅ 회원가입 요청
+  
+
+  // 회원가입 요청
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(""); // 기존 오류 메시지 초기화
-    setSuccessMessage(""); // 기존 성공 메시지 초기화
-    // setIsUserIdAvailable(null); // 중복 확인 상태 초기화 (⭐ 중요)
 
+    if (inputValue.nonIdDuplication === null) {
+      alert("아이디 중복 확인을 해주세요.");
+      return;
+    }
+    if (!inputValue.nonIdDuplication) {
+      alert(alertMessage.nonIdDuplication);
+      return;
+    }
     if (!inputValue.agree) {
-      setError("회원가입을 위해 정보 제공에 동의해야 합니다.");
+      alert(alertMessage.agree);
       return;
     }
-
-    if (inputValue.password !== inputValue.pwCheck) {
-      setError("비밀번호가 일치하지 않습니다.");
+    if (!inputValue.correctPwCheck) {
+      alert(alertMessage.correctPwCheck);
       return;
     }
-
-    if (isUserIdAvailable === false) {
-      setError("아이디가 이미 사용 중입니다.");
+    if (!inputValue.validPw) {
+      alert(alertMessage.validPw);
       return;
     }
-
+    if (!inputValue.username.trim()) {
+      alert(alertMessage.username);
+      return;
+    }
 
     const requestBody = {
       userId: inputValue.userId,
       password: inputValue.password,
-      name: inputValue.name,
+      name: inputValue.username,
     };
 
     try {
@@ -105,35 +149,36 @@ export default function SignUp({ onClose }) {
         body: JSON.stringify(requestBody),
       });
 
-      const data = await response.json();
-
       if (response.ok) {
-        setSuccessMessage("회원가입이 완료되었습니다!");
-        setTimeout(() => {
-          onClose();
-        }, 2000);
+        alert("회원가입이 완료되었습니다!");
+        // onClose();
+        // navigate("");
+        onSwitchToLogin();
       } else {
-        setError(data.error || "회원가입 실패");
-        if (data.error.includes("이미 존재하는 아이디")) {
-          setIsUserIdAvailable(false); // 아이디가 중복되었음을 다시 표시
-        }
+        const data = await response.json();
+        alert(data.error || "회원가입 실패");
       }
     } catch (err) {
-      setError("서버와 연결할 수 없습니다.");
+      console.error(err);
+      alert("서버와 연결할 수 없습니다.");
     }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white/70 w-full max-w-xs p-6 sm:p-8 h-auto rounded-xl shadow-md relative">
-        <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">✕</button>
+        <button onClick={onClose} className="absolute top-3 right-3 text-gray-500 hover:text-gray-700">
+          ✕
+        </button>
         <h1 className="text-4xl sm:text-6xl font-bold text-center text-white absolute -top-12 sm:-top-20 left-1/2 transform -translate-x-1/2">
           SignUp
         </h1>
         <form className="space-y-3" onSubmit={handleSubmit}>
-          {/* 아이디 입력 + 중복 확인 */}
+          {/* 아이디 입력 및 중복 확인 */}
           <div>
-            <label htmlFor="userId" className="block text-sm font-bold text-[#4d634b]">아이디</label>
+            <label htmlFor="userId" className="block text-sm font-bold text-[#4d634b]">
+              아이디
+            </label>
             <div className="flex">
               <input
                 type="text"
@@ -146,19 +191,25 @@ export default function SignUp({ onClose }) {
               />
               <button
                 type="button"
-                className="w-1/3 ml-2  mt-1 my-3 bg-[#4d634b] text-white font-bold text-sm rounded-md hover:bg-[#3f513d] transition"
+                className="w-1/3 ml-2 mt-1 my-3 bg-[#4d634b] text-white font-bold text-sm rounded-md hover:bg-[#3f513d] transition"
                 onClick={checkUserIdAvailability}
               >
                 중복 확인
               </button>
             </div>
-            {/* {isUserIdAvailable === true && <p className="text-green-500 text-sm">사용 가능한 아이디입니다.</p>}
-            {isUserIdAvailable === false && <p className="text-red-500 text-sm">이미 사용 중인 아이디입니다.</p>} */}
+            {inputValue.nonIdDuplication === true && (
+              <p className="text-green-500 text-sm">{passMessage.validId}</p>
+            )}
+            {inputValue.nonIdDuplication === false && (
+              <p className="text-red-500 text-sm">{alertMessage.nonIdDuplication}</p>
+            )}
           </div>
 
           {/* 비밀번호 입력 */}
           <div>
-            <label htmlFor="password" className="block text-sm font-bold text-[#4d634b]">비밀번호</label>
+            <label htmlFor="password" className="block text-sm font-bold text-[#4d634b]">
+              비밀번호
+            </label>
             <input
               type="password"
               id="password"
@@ -168,11 +219,19 @@ export default function SignUp({ onClose }) {
               className="w-full mt-1 p-2 mb-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
               required
             />
+            {inputValue.password && !inputValue.validPw && (
+              <p className="text-red-500 text-sm">{alertMessage.validPw}</p>
+            )}
+            {inputValue.password && inputValue.validPw && (
+              <p className="text-green-500 text-sm">{passMessage.validpw}</p>
+            )}
           </div>
 
           {/* 비밀번호 확인 */}
           <div>
-            <label htmlFor="pwCheck" className="block text-sm font-bold text-[#4d634b]">비밀번호 확인</label>
+            <label htmlFor="pwCheck" className="block text-sm font-bold text-[#4d634b]">
+              비밀번호 확인
+            </label>
             <input
               type="password"
               id="pwCheck"
@@ -182,41 +241,53 @@ export default function SignUp({ onClose }) {
               className="w-full mt-1 p-2 mb-3 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
               required
             />
+            {inputValue.pwCheck && !inputValue.correctPwCheck && (
+              <p className="text-red-500 text-sm">{alertMessage.correctPwCheck}</p>
+            )}
+            {inputValue.pwCheck && inputValue.correctPwCheck && (
+              <p className="text-green-500 text-sm">{passMessage.correctPwCheck}</p>
+            )}
           </div>
 
           {/* 이름 입력 */}
           <div>
-            <label htmlFor="name" className="block text-sm font-bold text-[#4d634b]">이름</label>
+            <label htmlFor="username" className="block text-sm font-bold text-[#4d634b]">
+              이름
+            </label>
             <input
               type="text"
-              id="name"
-              value={inputValue.name}
-              onChange={handleInputChange}
+              id="username"
               placeholder="이름을 입력해주세요"
+              value={inputValue.username}
+              onChange={handleInputChange}
               className="w-full mt-1 p-2 border my-4 rounded-md focus:outline-none focus:ring-2 focus:ring-[#a2b9a8] bg-[#f5f5f5]"
               required
             />
+            {inputValue.username.trim() === "" && (
+              <p className="text-red-500 text-sm">{alertMessage.username}</p>
+            )}
           </div>
 
-          {/* 정보 제공 동의 체크 */}
+          {/* 정보 제공 동의 */}
           <div className="my-4">
             <label className="inline-flex items-center">
               <input
                 type="checkbox"
                 checked={inputValue.agree}
-                onChange={(e) => setInputValue((prev) => ({ ...prev, agree: e.target.checked }))}
+                onChange={(e) =>
+                  setInputValue((prev) => ({ ...prev, agree: e.target.checked }))
+                }
                 className="form-checkbox"
               />
               <span className="ml-2 text-sm font-bold text-[#4d634b]">정보 제공에 동의합니다.</span>
             </label>
           </div>
 
-          {/* 오류 / 성공 메시지 */}
-          {error && <p className="text-red-500 text-sm text-center">{error}</p>}
-          {successMessage && <p className="text-green-500 text-sm text-center">{successMessage}</p>}
-
           {/* 회원가입 버튼 */}
-          <button type="submit" className="w-full py-2 text-white font-semibold rounded-md transition bg-[#4d634b] hover:bg-[#3f513d]">
+          <button
+            type="submit"
+            className="w-full py-2 text-white font-semibold rounded-md transition bg-[#4d634b] hover:bg-[#3f513d]"
+          >
             회원가입
           </button>
         </form>

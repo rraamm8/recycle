@@ -32,7 +32,7 @@ export default function Home() {
       {/* 로그인 모달 */}
       {modalType === "login" && <Login onClose={closeModal} onSignUp={openSignUpModal} />}
       {/* 회원가입 모달 */}
-      {modalType === "signup" && <SignUp onClose={closeModal} />}
+      {modalType === "signup" && <SignUp onClose={closeModal} onSwitchToLogin={openLoginModal}/>}
     </div>
   );
 }
