@@ -71,6 +71,14 @@ const root = createBrowserRouter([
         </Suspense>
     },
     {
+        path: "/calendar/:date",
+        element: 
+        <Suspense fallback={Loading}>
+          <CalendarDetailPage/> {/* 날짜별 데이터를 렌더링할 컴포넌트 */}
+        </Suspense>
+      },
+      
+    {
       path: "/fileupload",
       element:
         <Suspense fallback={Loading}>

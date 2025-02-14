@@ -102,7 +102,10 @@ const Calendar = () => {
         } else if (totalCount <= 500) {
           backgroundColor = "#4083c7"; // 중간 파란색
         } else if (totalCount <= 1000) {
-          backgroundColor = "#0c3259"; // 진한 파란색
+          backgroundColor = "#0a4078"; // 진한 파란색
+        }else {
+          // totalCount가 1000보다 큰 경우
+          backgroundColor = "#032242";
         }
       }
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom"; // useNavigate 추가
 import {
   LineChart,
   Line,
@@ -37,46 +37,36 @@ function CalendarDetailPage() {
   // 날짜별 데이터 필터링 (차트 데이터)
   useEffect(() => {
     if (data.length > 0 && date) {
-      // 1) 먼저 date와 같은 날짜만 필터링 (로컬 날짜 기준)
-      const filteredData = data.filter((item) => {
-        const localDateStr = new Date(item.timePeriod).toLocaleDateString("en-CA");
-        return localDateStr === date; 
-      });
+      const filteredData = data.filter(
+        (item) => new Date(item.timePeriod).toISOString().split("T")[0] === date
+      );
 
-      // 2) 시간별 합계
       const hourMap = {};
       filteredData.forEach((item) => {
         const hour = new Date(item.timePeriod).getHours();
         hourMap[hour] = (hourMap[hour] || 0) + item.totalCount;
       });
 
-      // 3) 24시간 차트 데이터 생성
       const newChartData = Array.from({ length: 24 }, (_, i) => ({
         label: `${i}시`,
         total: hourMap[i] || 0,
       }));
-
       setChartData(newChartData);
-    } else {
-      // date가 없거나 data가 비어있을 경우 차트 초기화
-      setChartData([]);
     }
   }, [data, date]);
 
   // 테이블 데이터 필터링
   const filteredTableData = useMemo(() => {
-    return data.filter((row) => {
-      const localDateStr = new Date(row.timePeriod).toLocaleDateString("en-CA");
-      return localDateStr === date;
-    });
+    return data.filter(
+      (row) => new Date(row.timePeriod).toISOString().split("T")[0] === date
+    );
   }, [data, date]);
 
   // 날짜 이동 함수: 하루 전으로 이동
   const goToPreviousDay = () => {
     const currentDate = new Date(date);
     currentDate.setDate(currentDate.getDate() - 1);
-    const newDateStr = currentDate.toLocaleDateString("en-CA"); 
-    // toISOString() 대신 toLocaleDateString("en-CA")로 YYYY-MM-DD 포맷 얻기
+    const newDateStr = currentDate.toISOString().split("T")[0];
     navigate(`/calendar/${newDateStr}`);
   };
 
@@ -84,7 +74,7 @@ function CalendarDetailPage() {
   const goToNextDay = () => {
     const currentDate = new Date(date);
     currentDate.setDate(currentDate.getDate() + 1);
-    const newDateStr = currentDate.toLocaleDateString("en-CA");
+    const newDateStr = currentDate.toISOString().split("T")[0];
     navigate(`/calendar/${newDateStr}`);
   };
 
@@ -140,44 +130,22 @@ function CalendarDetailPage() {
               <table className="min-w-full border-collapse border border-gray-300">
                 <thead>
                   <tr>
-                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">
-                      요일
-                    </th>
-                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">
-                      비디오 이름
-                    </th>
-                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">
-                      병 종류
-                    </th>
-                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">
-                      재활용 여부
-                    </th>
-                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">
-                      총 개수
-                    </th>
-                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">
-                      탄소 배출 감소량
-                    </th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">요일</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">비디오 이름</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">병 종류</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">재활용 여부</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">총 개수</th>
+                    <th className="border border-gray-300 p-2 sticky top-0 bg-white z-10">탄소 배출 감소량</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredTableData.map((row, index) => (
                     <tr key={index}>
-                      <td className="border border-gray-300 p-2">
-                        {row.dayOfWeek}
-                      </td>
-                      <td className="border border-gray-300 p-2">
-                        {row.videoName}
-                      </td>
-                      <td className="border border-gray-300 p-2">
-                        {row.bottleType}
-                      </td>
-                      <td className="border border-gray-300 p-2">
-                        {row.recyclable ? "가능" : "불가능"}
-                      </td>
-                      <td className="border border-gray-300 p-2">
-                        {row.totalCount}
-                      </td>
+                      <td className="border border-gray-300 p-2">{row.dayOfWeek}</td>
+                      <td className="border border-gray-300 p-2">{row.videoName}</td>
+                      <td className="border border-gray-300 p-2">{row.bottleType}</td>
+                      <td className="border border-gray-300 p-2">{row.recyclable ? "가능" : "불가능"}</td>
+                      <td className="border border-gray-300 p-2">{row.totalCount}</td>
                       <td className="border border-gray-300 p-2">
                         {parseFloat(row.totalCarbonReduction).toFixed(2)}
                       </td>
