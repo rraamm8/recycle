@@ -82,5 +82,11 @@ public class UsersService {
 		return token;
 				
 	}
+	
+	//지니가 한고
+	// 아이디 존재 여부 확인 (중복 체크용)
+    public boolean existsByUserId(String userId) {
+        return usersRepository.existsByUserId(userId);
+    }
 
 }
