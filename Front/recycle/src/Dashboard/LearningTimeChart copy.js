@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useMemo } from "react";
+import { Link } from "react-router-dom";
 import {
   LineChart,
   Line,
@@ -193,28 +194,19 @@ function LearningTimeChart() {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div style={{
-      maxWidth: 800,
-      margin: "0 auto",
-      padding: "1rem", // 내부 여백 추가
-      backgroundColor: "#fcfcfc", // 배경색 추가
-      borderRadius: "8px", // 모서리를 둥글게
-      boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // 그림자 추가 (옵션)
-      
-    }}>
-      <h2 style={{ textAlign: "center", marginBottom: "1rem", fontWeight: "bold", fontSize: "26px" }}>기간별 병 수거량</h2>
+    <div
+      className="max-w-4xl mx-auto p-3 my-4 bg-gray-50 rounded-lg shadow-md">
+      <h2 className="text-center mb-4 font-bold text-2xl text-gray-800">
+        기간별 병 수거량
+      </h2>
 
       {/* 드롭다운 2개 */}
-      <div style={{ justifyContent: "flex-end", display: "flex", gap: "1rem", marginBottom: "1rem" }}>
+      <div className="flex flex-col sm:flex-row justify-end gap-4 mb-4">
         {/* 병 종류 */}
         <select
           value={selectedBottleType}
           onChange={(e) => setSelectedBottleType(e.target.value)}
-          style={{
-            borderRadius:"3px",
-            border:"solid 2px",
-            borderColor:"gray"
-          }}
+          className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
         >
           {BOTTLE_TYPE_OPTIONS.map((opt, index) => (
             <option key={index} value={opt.value}>
@@ -227,11 +219,7 @@ function LearningTimeChart() {
         <select
           value={selectedPeriod}
           onChange={(e) => setSelectedPeriod(e.target.value)}
-          style={{
-            borderRadius:"3px",
-            border:"solid 2px",
-            borderColor:"gray"
-          }}
+          className="p-2 border border-gray-300 rounded text-sm w-full sm:w-auto"
         >
           {PERIOD_OPTIONS.map((p) => (
             <option key={p.value} value={p.value}>
@@ -239,32 +227,34 @@ function LearningTimeChart() {
             </option>
           ))}
         </select>
+        <Link to={'/LTDetailPage'}>
+        <button
+        className="p-2 border border-gray-300 bg-white mr-1 rounded text-sm w-full sm:w-auto"
+        
+        >
+          상세
+        </button>
+        </Link>
       </div>
 
       {/* 차트 */}
-      <ResponsiveContainer width="100%" height={400} >
-        <LineChart data={chartData} >
+      <ResponsiveContainer width="100%" height={300}>
+        <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" />
-          <XAxis
-            dataKey="label"
-          // label={{ value: "기간별", position: "insideBottom", offset: -4 }}
-          />
-          <YAxis
-          // label={{ value: "개수", angle: -90, position: "insideLeft" }}
-          />
+          <XAxis dataKey="label" />
+          <YAxis />
           <Tooltip />
           <Line
             type="monotone"
             dataKey="total"
             stroke="#0c3259"
-            // #8ef5f5
-            // #82ca9d
             strokeWidth={3}
             dot={{ r: 5 }}
           />
         </LineChart>
       </ResponsiveContainer>
     </div>
+
   );
 }
 

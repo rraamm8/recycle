@@ -1,9 +1,8 @@
 import React, { useEffect, useState, useMemo } from "react";
 import Brown from '../Icons/brown.svg';
-import Glass from '../Icons/glass.svg';
+import Blue from '../Icons/blue.svg';
 import green from '../Icons/green.svg';
 import white from '../Icons/white.svg';
-import blue from '../Icons/blue.svg';
 
 
 const MostUsedChart = () => {
@@ -30,15 +29,9 @@ const MostUsedChart = () => {
       "08_white_bottle+dirty+multi",
       "08_white_bottle+multi",
     ],
-    glass: [
-      "09_glass",
-      "09_glass+dirty",
-      "09_glass+dirty+multi",
-      "09_glass+multi",
+    blue: [
+      "10_blue_bottle",
     ],
-    blue:[
-      "10_blue_bottle"
-    ]
   };
 
   // 데이터 로드: Spring Boot API 호출
@@ -79,8 +72,7 @@ const MostUsedChart = () => {
       brown: 0,
       green: 0,
       white: 0,
-      glass: 0,
-      blue:0,
+      blue: 0,
     };
 
     // 병 타입별 합산
@@ -92,23 +84,20 @@ const MostUsedChart = () => {
         groupTotals.green += item.totalCount || 0;
       } else if (bottleGroups.white.includes(bottleType)) {
         groupTotals.white += item.totalCount || 0;
-      } else if (bottleGroups.glass.includes(bottleType)) {
-        groupTotals.glass += item.totalCount || 0;
-      } else if(bottleGroups.blue.includes(bottleType)){
+      } else if (bottleGroups.blue.includes(bottleType)) {
         groupTotals.blue += item.totalCount || 0;
       }
     });
 
     // 전체 합계 계산
-    const totalSum = groupTotals.brown + groupTotals.green + groupTotals.white + groupTotals.glass;
+    const totalSum = groupTotals.brown + groupTotals.green + groupTotals.white + groupTotals.blue;
 
     // 각 그룹의 비율 계산
     return [
       {  percentage: (groupTotals.brown / totalSum) * 100, color: "bg-amber-300", icon: Brown },
       {  percentage: (groupTotals.green / totalSum) * 100, color: "bg-green-300", icon: green },
       {  percentage: (groupTotals.white / totalSum) * 100, color: "bg-gray-300", icon: white },
-      {  percentage: (groupTotals.glass / totalSum) * 100, color: "bg-blue-300", icon: Glass},
-      {  percentage: (groupTotals.blue / totalSum) * 100, color: "bg-blue-700", icon: blue},
+      {  percentage: (groupTotals.blue / totalSum) * 100, color: "bg-blue-700", icon: Blue},
     ];
   }, [reports]);
 
@@ -117,7 +106,7 @@ const MostUsedChart = () => {
   if (error) return <div>Error: {error}</div>;
 
   return (
-    <div className="flex flex-col items-center text-center font-sans">
+    <div className="flex flex-col items-center  text-center font-sans">
       <h2 className="text-2xl font-bold mb-2">Bottle Types in the Last Month</h2>
       <p className="text-sm text-gray-500 mb-6">Recent month data grouped by bottle type</p>
       <div className="flex justify-around w-full max-w-md">

@@ -3,7 +3,7 @@ import { PieChart, Pie, Sector, ResponsiveContainer , Cell} from "recharts";
 import axios from "axios";
 //brown green white glass
 // const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff8042"]; // 병 종류별 색상
-const COLORS = ["#edc453", "#6aa86e", "#95c4cf", "#3d93b8","#3d43b8"]; // 병 종류별 색상
+const COLORS = ["#edc453", "#6aa86e", "#95c4cf", "#3d93b8"]; // 병 종류별 색상
 //brown  "#b5592b", "#77b52b", "#c8e0e0" ,"#2baeb5"
 // 병 종류 매핑
 const BOTTLE_MAPPING = {
@@ -31,9 +31,6 @@ const BOTTLE_MAPPING = {
     "09_glass+dirty",
     "09_glass+dirty+multi",
   ],
-  blue:[
-    "10_blue_bottle",
-  ]
 };
 
 const renderActiveShape = (props) => {
@@ -91,7 +88,7 @@ const renderActiveShape = (props) => {
         y={ey}
         textAnchor={textAnchor}
         fill="#333"
-      >{`${value}`}</text>
+      >{`총 ${value}`}</text>
       <text
         x={ex + (cos >= 0 ? 1 : -1) * 12}
         y={ey}
@@ -124,8 +121,8 @@ const PieChartComponent = () => {
 
   const transformData = (rawData) => {
     const groupedData = {
-      recyclable: { brown: 0, green: 0, white: 0, glass: 0, blue: 0 },
-      nonRecyclable: { brown: 0, green: 0, white: 0, glass: 0, blue: 0 },
+      recyclable: { brown: 0, green: 0, white: 0, glass: 0 },
+      nonRecyclable: { brown: 0, green: 0, white: 0, glass: 0 },
     };
 
     rawData.forEach((row) => {

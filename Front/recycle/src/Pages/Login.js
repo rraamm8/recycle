@@ -36,7 +36,7 @@ export default function Login({ onClose, onSignUp }) {
           console.log('token:', token);
           sessionStorage.setItem('username', user.userId);
           sessionStorage.setItem('jwtToken', token);
-          navigate('/dashboard');
+          navigate('/fileupload');
         } else {
           alert('로그인 실패: 토큰 없음');
         }

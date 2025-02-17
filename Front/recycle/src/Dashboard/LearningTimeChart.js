@@ -28,6 +28,7 @@ const BOTTLE_TYPE_MAPPING = {
   "09_glass+dirty": "유리병(오염)",
   "09_glass+dirty+multi": "유리병(오염+복합)",
   "09_glass+multi": "유리병(복합)",
+  "10_blue_bottle":"파란병"
 };
 
 /** 병 종류 옵션 */

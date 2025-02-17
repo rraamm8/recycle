@@ -105,7 +105,7 @@ function CalendarDetailPage() {
     >
       <div className="flex">
         <Sidebar />
-        <div className="flex-1 h-screen overflow-y-auto p-4 sm:p-6">
+        <div className="flex-1  h-screen overflow-y-auto p-4 sm:p-6">
           <div className="flex items-center justify-center mb-4">
             {/* 날짜 이동 버튼 */}
             <button
@@ -124,7 +124,7 @@ function CalendarDetailPage() {
               &gt;
             </button>
           </div>
-          <div className="max-w-7xl mx-auto mb-6 bg-white p-4 rounded">
+          <div className="max-w-7xl mx-auto mb-6 my-6 bg-white p-4 rounded">
             <ResponsiveContainer width="100%" height={300}>
               <LineChart data={chartData}>
                 <CartesianGrid strokeDasharray="3 3" />

@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
-
 import axios from "axios";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { io } from "socket.io-client";
 import FlipNumbers from "react-flip-numbers";
 import { useDropzone } from "react-dropzone";
-import Sidebar from "./Sidebar";
+import Sidebar from './Sidebar';
 
 const socket = io("http://10.125.121.225:5000", {
   transports: ["websocket", "polling"],
@@ -33,12 +32,8 @@ function FileUpload() {
   }, [uploadedFilename]);
 
   const onDrop = (acceptedFiles) => {
-    if (acceptedFiles.length === 0) return;
-
     const uploadedFile = acceptedFiles[0];
     setFile(uploadedFile);
-
-    setDetectionList([]);
     setResults(null);
     setVideoSrc("");
     setDetectionImages([]);
@@ -48,14 +43,11 @@ function FileUpload() {
     setGreenCount(0);
     setWhiteCount(0);
     setGlassCount(0);
+
   };
 
   const { getRootProps, getInputProps } = useDropzone({
-    accept: {
-      "image/png": [".png"],
-      "image/jpeg": [".jpg", ".jpeg"],
-      "video/mp4": [".mp4"] // 비디오 및 이미지 파일만 허용
-    },
+    accept: "video/*,image/*", // 비디오 및 이미지 파일만 허용
     onDrop, // 파일 드롭 이벤트 핸들러
   });
 
@@ -64,35 +56,17 @@ function FileUpload() {
       alert("Please select a file first!");
       return;
     }
-
-    setDetectionList([]);
-    setResults(null);
-    setVideoSrc("");
-    setDetectionImages([]);
-    setBottleCounts(0);
-    setBlueCount(0);
-    setBrownCount(0);
-    setGreenCount(0);
-    setWhiteCount(0);
-    setGlassCount(0);
-
     const formData = new FormData();
     formData.append("file", file);
-
     try {
       const response = await axios.post("http://10.125.121.225:5000/upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
-
       const uploadedFile = response.data.filename;
       setUploadedFilename(uploadedFile);
       setResults(response.data);
       setVideoSrc("http://10.125.121.225:5000/stream/live");
-
       await fetchDetectionImages(uploadedFile);
-
-      setFile(null);
-
     } catch (error) {
       console.error("Error uploading file:", error);
       alert("An error occurred while uploading the file.");
@@ -112,6 +86,8 @@ function FileUpload() {
     }
   };
 
+
+
   // WebSocket 이벤트 핸들러 등록 (실시간 bottle count 업데이트)
   useEffect(() => {
     const updateCountHandler = (data) => {
@@ -130,31 +106,7 @@ function FileUpload() {
 
     const detectionHandler = (data) => {
       // data.detections: 배열 [{time, track_id, class_name, confidence}, ...]
-      setDetectionList((prev) => {
-        // 이전 상태를 복사해서 수정할 임시 배열
-        const updatedList = [...prev];
-
-        // 새로 들어온 detection들에 대해 하나씩 검사
-        for (const newDet of data.detections) {
-          // 기존에 동일 track_id가 있는지 찾음
-          const existingIndex = updatedList.findIndex(
-            (item) => item.track_id === newDet.track_id
-          );
-
-          // 만약 기존에 없으면(새로운 track_id) 추가
-          if (existingIndex === -1) {
-            updatedList.push(newDet);
-          } else {
-            // 기존에 있었으면 confidence 비교
-            if (newDet.confidence > updatedList[existingIndex].confidence) {
-              // 더 높은 confidence일 때만 갱신
-              updatedList[existingIndex] = newDet;
-            }
-          }
-        }
-
-        return updatedList;
-      });
+      setDetectionList((prev) => [...prev, ...data.detections]);
     };
 
     const finalHandler = (data) => {
@@ -242,63 +194,42 @@ function FileUpload() {
     alignItems: "center",
   };
 
-  const getBgClassForName = (className) => {
-    if (className.includes("brown")) {
-      return "bg-[#d2b48c]";
-    } else if (className.includes("green")) {
-      return "bg-green-100";
-    } else if (className.includes("blue")) {
-      return "bg-blue-100";
-    } else if (className.includes("white")) {
-      return "bg-white";
-    } else if (className.includes("glass")) {
-      return "bg-gray-100";
-    } else {
-      return "bg-gray-200"; // default
-    }
-  };
-
   return (
-    <div className="flex">
+    // <div
+    //   style={{
+    //     width: "100%",
+    //     height: "100vh",
+    //     backgroundImage: `url('/video/g4.svg')`,
+    //     backgroundSize: "cover",
+    //     backgroundRepeat: "no-repeat",
+    //     backgroundPosition: "center",
+    //   }}
+    // >
+    <div
+    style={{
+      display: "flex",
+      flexDirection: "column",
+      alignItems: "center", // 수평 중앙 정렬
+      justifyContent: "center", // 수직 중앙 정렬 (필요한 경우)
+      minHeight: "100vh", // 최소 높이를 뷰포트 높이로 설정
+      width: "100%",
+      backgroundColor: "#f0f0f0", // 배경색 (선택 사항)
+    }}
+  >
+    <div className="flex" style={{ width: "100%" ,overflowY:"auto" }}>
+     
+      {/* 최대 너비 제한 */}
       <Sidebar />
-      <div className="flex-1  h-screen overflow-y-auto p-4 sm:p-6  bg-gray-100">
-
-        <div style={{ padding: "30px", maxWidth: "800px", margin: "0 auto"}}>
-          <h1 className="flex flex-col mb-7
-                     text-4xl font-bold text-center">SEOREU BOTTLE COUNT</h1>
-          <div style={{ textAlign: 'center', margin:"10px" }}>
-          <button
-            onClick={handleUpload}
-            className="h-[50px] w-[145px] px-5 py-2  bg-slate-400 text-white font-semibold text-lg rounded-lg hover:bg-slate-600 transition-all duration-300"
-          >
-            
-            분석 시작
-          </button>
-          </div>
-          <div style={{ marginBottom: "20px", justifyItems: "center" }}>
-            <div
-              {...getRootProps()}
-              style={{
-                border: "2px dashed #ccc",
-                padding: "20px",
-                textAlign: "center",
-                cursor: "pointer",
-                marginBottom: "20px",
-                width: "100%"
-              }}
-            >
-              <input {...getInputProps()} />
-              <p>
-                {file
-                  ? `선택된 파일: ${file.name}`
-                  : "드래그 앤 드롭 또는 클릭하여 선택"}
-              </p>
-            </div>
-
-
-          </div>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-            <div style={{ ...boxStyle, backgroundColor: "black", width: "100%" }}>
+      <div
+        className="flex-grow p-4 bg-gray-100"
+        style={{ overflowY: "auto" }}
+      >
+        {" "}
+        {/* Sidebar_Width는 사이드바의 너비 */}
+        {/* 카운트 및 버튼 섹션 */}
+        <div className="flex-col items-center" style={{width:"25%"}}>
+           <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ ...boxStyle, backgroundColor: "black", margin:"10ox" }}>
               <FlipNumbers
                 height={30}
                 width={20}
@@ -310,8 +241,9 @@ function FileUpload() {
               />
             </div>
           </div>
-          <div style={{ display: "flex", justifyContent: "center", alignItems: "center", gap: "10px" }}>
-            <div style={{ ...boxStyle, backgroundColor: "#3f6b42" }}>
+
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ ...boxStyle, backgroundColor: "#6aa86e", margin: "10px" }}>
               <FlipNumbers
                 height={30}
                 width={20}
@@ -322,29 +254,9 @@ function FileUpload() {
                 numbers={greenCount.toString()}
               />
             </div>
-            <div style={{ ...boxStyle, backgroundColor: "#8f594c" }}>
-              <FlipNumbers
-                height={30}
-                width={20}
-                color="#ffffff"
-                background="none"
-                play
-                numberStyle={{ fontSize: "24px", fontWeight: "bold" }}
-                numbers={brownCount.toString()}
-              />
-            </div>
-            <div style={{ ...boxStyle, backgroundColor: "#f2ebe9", border: "0.1px solid #e0d8d5" }}>
-              <FlipNumbers
-                height={30}
-                width={20}
-                color="#000000"
-                background="none"
-                play
-                numberStyle={{ fontSize: "24px", fontWeight: "bold" }}
-                numbers={whiteCount.toString()}
-              />
-            </div>
-            <div style={{ ...boxStyle, backgroundColor: "#1f2a73" }}>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ ...boxStyle, backgroundColor: "#3d43b8", margin: "10px" }}>
               <FlipNumbers
                 height={30}
                 width={20}
@@ -355,11 +267,39 @@ function FileUpload() {
                 numbers={blueCount.toString()}
               />
             </div>
-            <div style={{ ...boxStyle, backgroundColor: "#cae5e8" }}>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ ...boxStyle, backgroundColor: "#edc453", margin: "10px" }}>
               <FlipNumbers
                 height={30}
                 width={20}
-                color="#000000"
+                color="#ffffff"
+                background="none"
+                play
+                numberStyle={{ fontSize: "24px", fontWeight: "bold" }}
+                numbers={brownCount.toString()}
+              />
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ ...boxStyle, backgroundColor: "#95c4cf", margin: "10px" }}>
+              <FlipNumbers
+                height={30}
+                width={20}
+                color="#ffffff"
+                background="none"
+                play
+                numberStyle={{ fontSize: "24px", fontWeight: "bold" }}
+                numbers={whiteCount.toString()}
+              />
+            </div>
+          </div>
+          <div style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+            <div style={{ ...boxStyle, backgroundColor: "#3d93b8", margin: "10px" }}>
+              <FlipNumbers
+                height={30}
+                width={20}
+                color="#ffffff"
                 background="none"
                 play
                 numberStyle={{ fontSize: "24px", fontWeight: "bold" }}
@@ -367,25 +307,61 @@ function FileUpload() {
               />
             </div>
           </div>
+        </div>
+        {/* 비디오 및 업로드 섹션 */}
+        <div style={{ width: "100%" }}>
           {videoSrc && (
-            <div style={{ marginBottom: "20px" }}>
-              <h2 className="text-2xl font-bold text-center m-5">실시간 분석 스트리밍</h2>
+            <div style={{ marginBottom: "20px", textAlign: "center" }}>
+              <h2>실시간 분석 스트리밍</h2>
               <img
                 src={videoSrc}
                 alt="Stream"
                 crossOrigin="anonymous"
-                style={{ width: "100%", maxHeight: "500px", objectFit: "contain" }}
+                style={{ maxWidth: "100%", maxHeight: "500px", objectFit: "contain" }}
               />
             </div>
           )}
-          <h2 className="text-2xl font-bold text-center mt-7 mb-5">감지된 유리병 리스트</h2>
+
+          <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+            <h1 className="text-xl font-bold text-center mb-4">
+              SEOREU BOTTLE COUNT
+            </h1>
+            <div
+              {...getRootProps()}
+              style={{
+                border: "2px dashed #ccc",
+                padding: "20px",
+                textAlign: "center",
+                cursor: "pointer",
+                marginBottom: "10px",
+              }}
+            >
+              <input {...getInputProps()} />
+              <p>
+                {file
+                  ? `선택된 파일: ${file.name}`
+                  : "파일을 여기로 드래그 앤 드랍하거나 클릭하여 선택하세요."}
+              </p>
+            </div>
+            <button
+              onClick={handleUpload}
+              className="ml-2 px-5 py-2 bg-slate-500 text-white font-semibold text-lg rounded-lg hover:bg-slate-600 transition-all duration-300"
+            >
+              분석 시작
+            </button>
+          </div>
+          {/* 결과 및 이미지 섹션 */}
+        <div style={{ padding: "20px", maxWidth: "800px", margin: "0 auto" }}>
+          
+
+          <h2>감지된 유리병 리스트</h2>
           {results && (
-            <div className="max-h-[500px] overflow-y-auto bg-gray-100">
+            <div style={{ maxHeight: "500px", overflowY: "auto", backgroundColor: "#f5f5f5" }}>
+
               {/* 실시간 감지 정보를 표 형태로 출력 */}
               <table style={{ width: "100%", borderCollapse: "collapse" }}>
                 <thead>
                   <tr>
-                    <th style={{ padding: "8px" }}>번호</th>
                     <th style={{ padding: "8px" }}>시간(초)</th>
                     <th style={{ padding: "8px" }}>아이디</th>
                     <th style={{ padding: "8px" }}>병 종류</th>
@@ -394,20 +370,30 @@ function FileUpload() {
                 </thead>
                 <tbody>
                   {detectionList.map((item, index) => {
-                    const textBgClass = getBgClassForName(item.class_name);
+                    let bgColor = "#f5f5f5"; // 기본 배경색
+
+                    // 첫 번째 그룹: 예시 (Bottle, Plastic)
+                    if (["green"].includes(item.class_name)) {
+                      bgColor = "bg-green-100"; // 초록색 배경
+                    }
+                    // 두 번째 그룹: 예시 (Glass, Paper)
+                    else if (["blue"].includes(item.class_name)) {
+                      bgColor = "bg-blue-100"; // 파란색 배경
+                    }
+                    // 세 번째 그룹: 예시 (Metal, Cardboard)
+                    else if (["brown"].includes(item.class_name)) {
+                      bgColor = "bg-brown-100"; // 노란색 배경
+                    }
+                    // 네 번째 그룹: 예시 (PlasticBag, Other)
+                    else if (["white"].includes(item.class_name)) {
+                      bgColor = "bg-white"; // 회색 배경
+                    }
 
                     return (
-                      <tr key={index} /* 배경색 없음 */>
-                        <td style={{ padding: "8px" }}>{index + 1}</td>
+                      <tr key={index} className={bgColor}>
                         <td style={{ padding: "8px" }}>{item.time.toFixed(2)}</td>
                         <td style={{ padding: "8px" }}>{item.track_id}</td>
-                        <td style={{ padding: "8px" }}>
-                          <span
-                            className={`py-2 px-4 rounded-md ${textBgClass} text-gray-700 inline-block`}
-                          >
-                            {item.class_name}
-                          </span>
-                        </td>
+                        <td style={{ padding: "8px" }}>{item.class_name}</td>
                         <td style={{ padding: "8px" }}>{item.confidence.toFixed(2)}</td>
                       </tr>
                     );
@@ -418,7 +404,7 @@ function FileUpload() {
           )}
           {detectionImages.length > 0 && (
             <div>
-              <h2 className="text-2xl font-bold text-center mt-8 mb-5">분석 화면 캡쳐 이미지</h2>
+              <h2>분석 화면 캡쳐 이미지</h2>
               <div
                 style={{
                   display: "grid",
@@ -491,6 +477,9 @@ function FileUpload() {
         </div>
       </div>
     </div>
+    </div>
+  </div>
+
   );
 }
 

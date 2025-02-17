@@ -11,13 +11,16 @@ import {
 import { FaChartLine } from "react-icons/fa6";
 import { FaCloudUploadAlt } from "react-icons/fa";
 
+import { RxDashboard } from "react-icons/rx";
+import { BiSolidDashboard } from "react-icons/bi";
+
 const Sidebar = () => {
   const [active, setActive] = useState("홈");
 
   const menuItems = [
-    { name: "Home", icon: <FaHome />, path: "/dashboard" },
+    { name: "Home", icon: <FaHome />, path: "/fileupload" },
+    { name: "DashBoard", icon: <BiSolidDashboard />, path:"/dashboard" },
     { name: "Chart", icon: <FaChartLine />, path: "/LTDetailPage" },
-    { name: "Upload", icon: <FaCloudUploadAlt />, path:"/fileupload" },
     // { name: "메시지", icon: <FaEnvelope /> },
     // { name: "설정", icon: <FaCog /> },
     { name: "Sign Out", icon: <FaSignOutAlt />, path: "/logout" },
