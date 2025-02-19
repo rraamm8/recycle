@@ -106,7 +106,7 @@ function CalendarDetailPage() {
       <div className="flex">
         <Sidebar />
         <div className="flex-1  h-screen overflow-y-auto p-4 sm:p-6">
-          <div className="flex items-center justify-center mb-4">
+          <div className="flex items-center justify-center mb-4 py-5">
             {/* 날짜 이동 버튼 */}
             <button
               onClick={goToPreviousDay}
@@ -114,7 +114,7 @@ function CalendarDetailPage() {
             >
               &lt;
             </button>
-            <h2 className="text-xl sm:text-3xl font-bold px-4">
+            <h2 className="text-xl sm:text-4xl font-bold px-4">
               {date} 병 수거량
             </h2>
             <button
