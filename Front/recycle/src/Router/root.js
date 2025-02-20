@@ -16,15 +16,7 @@ const LTDetailPage = lazy(()=>import("../Dashboard/LTDetailPage"))
 const CalendarDetailPage = lazy(()=>import("../Dashboard/CalendarDetailPage"))
 
 
-// // 로그아웃 시 상태 변경
-// const handleLogout = () => {
-//   sessionStorage.removeItem("jwtToken");
-//   sessionStorage.removeItem("username");
-//   setIsLoggedIn(false);
-//   sessionStorage.clear();
 
-//   console.log("logout");
-// };
 
 const loginCheck = () => {
   const isLoggedIn = !!sessionStorage.getItem("jwtToken");
@@ -116,4 +108,4 @@ const root = createBrowserRouter([
     },
   ])
  export default root;
-  // return <RouterProvider router={router} />;
+
